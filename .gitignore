@@ -1,0 +1,32 @@
+# Folders.
+bin
+logs
+vendor
+vendor.pb
+.idea
+.vscode
+.DS_STORE
+
+# Binary and generated files.
+*.o
+*.a
+*.so
+*.exe
+*.exe~
+*.test
+*.prof
+*.pprof
+*.out
+*.log
+*.dll
+*.dylib
+*.cgo1.go
+*.cgo2.c
+
+_testmain.go
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+cover.out
+cover.html
