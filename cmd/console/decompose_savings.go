@@ -94,19 +94,14 @@ var decomposeSavings = &cobra.Command{
 		}
 
 		var yearsInfo string
-		if yearsLeft > 10 && yearsLeft < 15 {
+		remainder := yearsLeft / 10
+		lastDigit := yearsLeft - remainder*10
+		if yearsLeft > 10 && yearsLeft < 15 || lastDigit > 4 {
 			yearsInfo = "лет"
+		} else if lastDigit == 1 {
+			yearsInfo = "год"
 		} else {
-			remainder := yearsLeft / 10
-			lastDigit := yearsLeft - remainder*10
-			switch lastDigit {
-			case 1:
-				yearsInfo = "год"
-			case 2, 3, 4:
-				yearsInfo = "года"
-			default:
-				yearsInfo = "лет"
-			}
+			yearsInfo = "года"
 		}
 
 		fmt.Printf(

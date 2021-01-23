@@ -21,8 +21,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -43,12 +41,8 @@ var logo = []string{
 }
 
 var oracle = &cobra.Command{
-	Use:   "oracle",
-	SilenceUsage: true,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		printHeader()
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello from oracle")
-	},
+	Use:              "oracle",
+	SilenceUsage:     true,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) { printHeader() },
+	Run:              func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
 }
