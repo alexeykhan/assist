@@ -101,8 +101,6 @@ func unquoteUsage(flag *pflag.Flag) (name string, usage string) {
 
 	name = flag.Value.Type()
 	switch name {
-	case "bool":
-		name = "bool"
 	case "float64":
 		name = "float"
 	case "int64":
