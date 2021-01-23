@@ -18,87 +18,75 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package oracle
+package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"retire/internal/console"
 )
 
-var logo = `
-  ooooooo  oooooooooo       o       oooooooo8 ooooo       ooooooooooo
-o888   888o 888    888     888    o888     88  888         888    88
-888     888 888oooo88     8  88   888          888         888ooo8
-888o   o888 888  88o     8oooo88  888o     oo  888      o  888    oo
-  88ooo88  o888o  88o8 o88o  o888o 888oooo88  o888ooooo88 o888ooo8888`
-
-var oracle = &cobra.Command{
-	Use:   "oracle",
-	Short: "Oracle — Программа для декомпозиции финансовых целей",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		cmd.SilenceUsage = true
-	},
-}
-
-var accumulateFlags = struct {
+var decomposeSavingsFlags = struct {
 	YearsLeft     pflag.Flag
-	AnnualRate    pflag.Flag
+	InterestRate  pflag.Flag
 	FinancialGoal pflag.Flag
 	Capitalize    pflag.Flag
+	Help          pflag.Flag
 }{
 	YearsLeft: pflag.Flag{
 		Name:      "years",
 		Shorthand: "y",
-		Usage:     "Number of years it takes to save up or spend money",
+		Usage:     "Количество лет, за которое необходимо накопить нужную сумму",
 		DefValue:  "",
 	},
-	AnnualRate: pflag.Flag{
-		Name:      "rate",
-		Shorthand: "r",
-		Usage:     "Annual interest or inflation rate",
+	InterestRate: pflag.Flag{
+		Name:      "interest",
+		Shorthand: "i",
+		Usage:     "Доходность вашего инвестиционного портфеля в процентах годовых",
 		DefValue:  "",
 	},
 	FinancialGoal: pflag.Flag{
 		Name:      "goal",
 		Shorthand: "g",
-		Usage:     "Your financial goal to achieve during given period",
+		Usage:     "Ваша финансовая цель, которую нужно достгнуть за заданный период",
 		DefValue:  "",
 	},
-	// Fixed transaction amount to replenish or withdraw money
 	Capitalize: pflag.Flag{
 		Name:      "capitalize",
 		Shorthand: "c",
-		Usage:     "Whether to take into account interest capitalization or not",
+		Usage:     "Включать капитализацию процентов или нет",
+		DefValue:  "",
+	},
+	Help: pflag.Flag{
+		Name:      "help",
+		Shorthand: "h",
+		Usage:     "Документация по команде",
 		DefValue:  "",
 	},
 }
 
-var predict = &cobra.Command{
-	Use:   "predict",
-	Short: "Построить модель решения задачи",
-	Run:   func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
-}
-
-var savings = &cobra.Command{
+var decomposeSavings = &cobra.Command{
 	Use:   "savings",
 	Short: "Рассчитать, сколько денег будет по итогу периоду",
-	Example: console.Examples(
-		"# Узнайте, сколько денег сможете накопить за период:\n" +
-			"./bin/oracle predict savings --goal 10234567.89 --rate 6.5 --years 10\n" +
-			"./bin/oracle predict savings -g 10234567.89 -r 6.5 -y 10",
+	Example: example(
+		"Декомпозиция финансовой цели",
+		"Узнайте, сколько денег необходимо инвестировать каждый месяц, квартал, "+
+			"полгода или год, чтобы успешно накопить необходимую сумму за обозначенный "+
+			"срок в годах с учетом капиталлизации процентов или без.",
+		[]string{
+			"./oracle decompose savings --goal=1234567.89 --years=10 --interest=6.5",
+			"./oracle decompose savings -g=1234567.89 -y=10 -i=6.5 -c=false",
+			"./oracle decompose savings --help",
+			"./oracle decompose savings -h",
+		},
 	),
 	Run: func(cmd *cobra.Command, args []string) {
-		yearsLeft := console.GetUint8(cmd, accumulateFlags.YearsLeft.Name)
-		annualRate := console.GetFloat32(cmd, accumulateFlags.AnnualRate.Name)
-		financialGoal := console.GetFloat32(cmd, accumulateFlags.FinancialGoal.Name)
-		capitalize := console.GetBool(cmd, accumulateFlags.Capitalize.Name)
+		yearsLeft := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
+		annualRate := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
+		financialGoal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)
+		capitalize := getBool(cmd, decomposeSavingsFlags.Capitalize.Name)
 
 		capitalizeInfo := "выключена"
 		if capitalize {
@@ -144,7 +132,7 @@ var savings = &cobra.Command{
 		var checkInterest float32
 		var checkPersonal float32
 
-		t := console.GetTableWriter()
+		t := getTableWriter()
 		t.SetTitle("План по достижению цели")
 		t.AppendHeader(table.Row{"Месяц", "Вложения", "Проценты", "Накопления"})
 
@@ -182,31 +170,4 @@ var savings = &cobra.Command{
 				"> Сумма начисленных процентов за период: %.2f\n\n",
 			monthlyPayment, checkPersonal, checkInterest)
 	},
-}
-
-func init() {
-	savings.Flags().BoolP(accumulateFlags.Capitalize.Name, accumulateFlags.Capitalize.Shorthand, true, accumulateFlags.Capitalize.Usage)
-	savings.Flags().Uint8P(accumulateFlags.YearsLeft.Name, accumulateFlags.YearsLeft.Shorthand, 0, accumulateFlags.YearsLeft.Usage)
-	savings.Flags().Float32P(accumulateFlags.AnnualRate.Name, accumulateFlags.AnnualRate.Shorthand, 0, accumulateFlags.AnnualRate.Usage)
-	savings.Flags().Float32P(accumulateFlags.FinancialGoal.Name, accumulateFlags.FinancialGoal.Shorthand, 0, accumulateFlags.FinancialGoal.Usage)
-	_ = savings.MarkFlagRequired(accumulateFlags.YearsLeft.Name)
-	_ = savings.MarkFlagRequired(accumulateFlags.AnnualRate.Name)
-	_ = savings.MarkFlagRequired(accumulateFlags.FinancialGoal.Name)
-
-	oracle.AddCommand(predict)
-	predict.AddCommand(savings)
-
-	txt := text.Colors{text.Bold, text.FgHiGreen}
-
-	fmt.Printf(
-		"%s\n\n%s\n\n",
-		txt.Sprint(logo),
-		txt.Sprint("[version|0.1.0] [updated|2021-01-22] [copyright|Alexey Khan]"))
-}
-
-// Execute ...
-func Execute() {
-	if err := oracle.Execute(); err != nil {
-		os.Exit(1)
-	}
 }

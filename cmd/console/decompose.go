@@ -18,29 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package console
+package main
 
-import "strings"
+import "github.com/spf13/cobra"
 
-const Indentation = `  `
-
-// Examples нормализует примеры использования команд для соответствия общей конвенции.
-func Examples(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	return example(s).Normalize()
-}
-
-type example string
-
-func (e example) Normalize() string {
-	var indentedLines []string
-	input := strings.TrimSpace(string(e))
-	for _, line := range strings.Split(input, "\n") {
-		trimmed := strings.TrimSpace(line)
-		indented := Indentation + trimmed
-		indentedLines = append(indentedLines, indented)
-	}
-	return strings.Join(indentedLines, "\n")
+var decompose = &cobra.Command{
+	Use:   "decompose",
+	Short: "Построить модель решения задачи",
+	Run:   func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
 }

@@ -21,9 +21,72 @@
 package main
 
 import (
-	"retire/internal/oracle"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
+func init() {
+	decomposeSavings.Flags().BoolP(decomposeSavingsFlags.Capitalize.Name, decomposeSavingsFlags.Capitalize.Shorthand, true, decomposeSavingsFlags.Capitalize.Usage)
+	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.YearsLeft.Name, decomposeSavingsFlags.YearsLeft.Shorthand, 0, decomposeSavingsFlags.YearsLeft.Usage)
+	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.InterestRate.Name, decomposeSavingsFlags.InterestRate.Shorthand, 0, decomposeSavingsFlags.InterestRate.Usage)
+	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.FinancialGoal.Name, decomposeSavingsFlags.FinancialGoal.Shorthand, 0, decomposeSavingsFlags.FinancialGoal.Usage)
+	decomposeSavings.Flags().BoolP(decomposeSavingsFlags.Help.Name, decomposeSavingsFlags.Help.Shorthand, false, decomposeSavingsFlags.Help.Usage)
+	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.YearsLeft.Name)
+	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.InterestRate.Name)
+	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.FinancialGoal.Name)
+
+	oracle.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		printHeader()
+
+		fmt.Println(cmd.Example)
+		fmt.Println(text.Colors{text.Bold, text.FgHiWhite}.Sprint(" Параметры и опции команды:"))
+
+		var maxlen int
+		var flagLines []string
+		cmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+			if flag.Hidden {
+				return
+			}
+
+			line := ""
+			if flag.Shorthand != "" && flag.ShorthandDeprecated == "" {
+				line = fmt.Sprintf("  -%s, --%s", flag.Shorthand, flag.Name)
+			} else {
+				line = fmt.Sprintf("      --%s", flag.Name)
+			}
+
+			varname, usage := unquoteUsage(flag)
+			line += " " + varname
+
+			line += "\x00"
+			if len(line) > maxlen {
+				maxlen = len(line)
+			}
+
+			line += usage
+			flagLines = append(flagLines, line)
+		})
+
+		for _, line := range flagLines {
+			sidx := strings.Index(line, "\x00")
+			spacing := strings.Repeat(" ", maxlen-sidx)
+			concatenated := line[:sidx] + spacing + " " + wrapUsage(line[sidx+1:], appViewWidth, maxlen+1)
+			fmt.Println(text.Colors{text.FgHiWhite}.Sprint(concatenated))
+		}
+	})
+}
+
 func main() {
-	oracle.Execute()
+	oracle.AddCommand(decompose)
+	decompose.AddCommand(decomposeSavings)
+
+	if err := oracle.Execute(); err != nil {
+		// _ = cmd.Help()
+		os.Exit(1)
+	}
 }
