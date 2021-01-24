@@ -22,6 +22,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -29,11 +30,31 @@ import (
 	"github.com/spf13/pflag"
 )
 
+var decomposeSavingsConfig = struct {
+	title    string
+	about    string
+	template string
+	examples []string
+}{
+	title: "Декомпозиция накопления суммы",
+	about: "Узнайте, какую сумму необходимо инвестировать каждый месяц, чтобы при " +
+		"заданных доходности портфеля P% годовых, горизонте инвестирования N лет и " +
+		"ежемесячной капитализации процентов накопить к концу срока нужную сумму X.",
+	template: "Задача: рассчитать сумму, которую необходимо инвестировать каждый месяц " +
+		"на протяжении %d %s, чтобы при средней доходности портфеля %.2f%% "+
+		"годовых и ежемесячной капитализации процентов накопить %.2f руб.",
+	examples: []string{
+		"./oracle decompose savings --goal=1234567.89 --years=10 --interest=6.5",
+		"./oracle decompose savings -g=1234567.89 -y=10 -i=6.5",
+		"./oracle decompose savings --help",
+		"./oracle decompose savings -h",
+	},
+}
+
 var decomposeSavingsFlags = struct {
 	YearsLeft     pflag.Flag
 	InterestRate  pflag.Flag
 	FinancialGoal pflag.Flag
-	Capitalize    pflag.Flag
 }{
 	YearsLeft: pflag.Flag{
 		Name:      "years",
@@ -53,58 +74,41 @@ var decomposeSavingsFlags = struct {
 		Usage:     "Ваша финансовая цель, которую нужно достгнуть за заданный период",
 		DefValue:  "",
 	},
-	Capitalize: pflag.Flag{
-		Name:      "capitalize",
-		Shorthand: "c",
-		Usage:     "Включать капитализацию процентов или нет",
-		DefValue:  "",
-	},
 }
 
 var decomposeSavings = &cobra.Command{
 	Use: "savings",
 	Example: example(
-		"Декомпозиция накопления",
-		"Узнайте, какую сумму необходимо инвестировать каждый месяц, чтобы при "+
-			"заданных доходности портфеля P% годовых, горизонте инвестирования N лет и "+
-			"капитализации процентов накопить к концу срока нужную сумму X.",
-		[]string{
-			"./oracle decompose savings --goal=1234567.89 --years=10 --interest=6.5",
-			"./oracle decompose savings -g=1234567.89 -y=10 -i=6.5 -c=false",
-			"./oracle decompose savings --help",
-			"./oracle decompose savings -h",
-		},
+		decomposeSavingsConfig.title,
+		decomposeSavingsConfig.about,
+		decomposeSavingsConfig.examples,
 	),
 	Run: func(cmd *cobra.Command, args []string) {
 		yearsLeft := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
 		annualRate := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
 		financialGoal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)
-		capitalize := getBool(cmd, decomposeSavingsFlags.Capitalize.Name)
 
-		capitalizeInfo := "выключена"
-		if capitalize {
-			capitalizeInfo = "включена"
-		}
-
-		var yearsInfo string
-		remainder := yearsLeft / 10
-		lastDigit := yearsLeft - remainder*10
-		if yearsLeft > 10 && yearsLeft < 15 || lastDigit > 4 {
-			yearsInfo = "лет"
-		} else if lastDigit == 1 {
-			yearsInfo = "год"
-		} else {
+		yearsInfo := "лет"
+		if yearsLeft != 11 && yearsLeft%10 == 1 {
 			yearsInfo = "года"
 		}
 
-		fmt.Printf(
-			"Входные данные:\n"+
-				"> Финансовая цель: %.2f;\n"+
-				"> Горизонт инвестирования: %d %s;\n"+
-				"> Номинальная процентная ставка: %.2f%%;\n"+
-				"> Капитализация процентов: %s;\n\n",
-			financialGoal, yearsLeft, yearsInfo, annualRate, capitalizeInfo,
-		)
+		boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
+		normalWhiteText := text.Colors{text.FgHiWhite}
+
+		var task string
+		upperCaseTitle := text.FormatUpper.Apply(decomposeSavingsConfig.title)
+		formattedTitle := boldWhiteText.Sprintf(" %s", upperCaseTitle)
+		task += formattedTitle + "\n\n"
+
+		filledTask := fmt.Sprintf(decomposeSavingsConfig.template, yearsLeft, yearsInfo, annualRate, financialGoal)
+		wrappedTask := text.WrapSoft(filledTask, appViewWidth-2)
+		for _, line := range strings.Split(wrappedTask, "\n") {
+			trimmedLine := strings.TrimSpace(line)
+			task += normalWhiteText.Sprintf(" %s\n", trimmedLine)
+		}
+
+		fmt.Println(task)
 
 		periodRate := annualRate * 0.01 / 12
 		coefficient := 1 + periodRate

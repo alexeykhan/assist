@@ -41,7 +41,6 @@ func init() {
 	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.FinancialGoal.Name, decomposeSavingsFlags.FinancialGoal.Shorthand, 0, decomposeSavingsFlags.FinancialGoal.Usage)
 	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.YearsLeft.Name, decomposeSavingsFlags.YearsLeft.Shorthand, 0, decomposeSavingsFlags.YearsLeft.Usage)
 	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.InterestRate.Name, decomposeSavingsFlags.InterestRate.Shorthand, 0, decomposeSavingsFlags.InterestRate.Usage)
-	decomposeSavings.Flags().BoolP(decomposeSavingsFlags.Capitalize.Name, decomposeSavingsFlags.Capitalize.Shorthand, true, decomposeSavingsFlags.Capitalize.Usage)
 	decomposeSavings.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.YearsLeft.Name)
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.InterestRate.Name)
