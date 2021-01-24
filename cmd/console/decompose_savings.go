@@ -83,6 +83,8 @@ var decomposeSavings = &cobra.Command{
 		decomposeSavingsConfig.examples,
 	),
 	Run: func(cmd *cobra.Command, args []string) {
+		printHeader()
+		
 		yearsLeft := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
 		annualRate := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
 		financialGoal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)

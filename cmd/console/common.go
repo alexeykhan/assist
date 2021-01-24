@@ -71,14 +71,13 @@ func wrapUsage(usage string, max, indent int) string {
 	lines := strings.Split(wrapped, "\n")
 	if len(lines) > 1 {
 		for i, line := range lines {
-			if i == 0 {
-				final += line + "\n"
-				continue
+			if i > 0 {
+				final += strings.Repeat(" ", indent)
 			}
-			final += strings.Repeat(" ", indent) + line
+			final += line + "\n"
 		}
 	} else {
-		final += lines[0]
+		final += lines[0] + "\n"
 	}
 
 	return final
@@ -183,7 +182,7 @@ func printDescriptor(cmd *cobra.Command) {
 			sidx := strings.Index(line, "\x00")
 			spacing := strings.Repeat(" ", maxLen-sidx)
 			concatenated := line[:sidx] + spacing + " " + wrapUsage(line[sidx+1:], appViewWidth, maxLen+1)
-			fmt.Println(text.Colors{text.FgHiWhite}.Sprint(concatenated))
+			fmt.Print(text.Colors{text.FgHiWhite}.Sprint(concatenated))
 		}
 	}
 	fmt.Println()

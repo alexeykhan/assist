@@ -44,9 +44,8 @@ var logo = []string{
 }
 
 var assist = &cobra.Command{
-	Use:              "assist",
-	SilenceUsage:     true,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) { printHeader() },
+	Use:          "assist",
+	SilenceUsage: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 	},
