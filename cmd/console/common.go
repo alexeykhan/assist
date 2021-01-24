@@ -35,12 +35,13 @@ const (
 	appVersion   = "0.1.0"
 	appCopyright = "alexeykhan"
 	appLicense   = "MIT"
-	appViewWidth = 60
+	appViewWidth = 64
 
 	commandOptions = " Параметры и опции команды:"
 	commandUsageExamples = "\n Примеры использования:\n"
 
 	tableColumnYear           = "Год"
+	tableColumnExpenses		  = "Расходы"
 	tableColumnInvestments    = "Вложения"
 	tableColumnInterestIncome = "Проценты"
 	tableColumnTotalSavings   = "Накопления"
@@ -208,7 +209,7 @@ func getTableWriter(columns ...string) table.Writer {
 	}
 
 	yearColumnWidth := 6
-	moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 8) / 3
+	moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 17) / 3
 
 	t := table.NewWriter()
 	t.SetAllowedRowLength(appViewWidth)
@@ -224,8 +225,8 @@ func getTableWriter(columns ...string) table.Writer {
 			MiddleHorizontal: "━",
 			MiddleSeparator:  "━╋",
 			MiddleVertical:   " ┃",
-			PaddingLeft:      "",
-			PaddingRight:     "",
+			PaddingLeft:      " ",
+			PaddingRight:     " ",
 			Right:            "┃",
 			RightSeparator:   "┫",
 			TopLeft:          " ┏",
@@ -259,6 +260,14 @@ func getTableWriter(columns ...string) table.Writer {
 			AlignHeader: text.AlignCenter,
 			WidthMin:    yearColumnWidth,
 			WidthMax:    yearColumnWidth,
+		},
+		{
+			Name:        tableColumnExpenses,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    moneyColumnMaxWidth,
+			WidthMax:    moneyColumnMaxWidth,
 		},
 		{
 			Name:        tableColumnInvestments,
@@ -300,6 +309,15 @@ func getFloat32(cmd *cobra.Command, name string) float32 {
 
 func getUint8(cmd *cobra.Command, name string) uint8 {
 	value, err := cmd.Flags().GetUint8(name)
+	if err != nil {
+		_ = cmd.Help()
+		log.Fatal(err)
+	}
+	return value
+}
+
+func getBool(cmd *cobra.Command, name string) bool {
+	value, err := cmd.Flags().GetBool(name)
 	if err != nil {
 		_ = cmd.Help()
 		log.Fatal(err)
