@@ -123,16 +123,13 @@ func printHeader() {
 	boldGreenFormat := text.Colors{text.Bold, text.FgHiGreen}
 
 	shields := []string{
+		text.Colors{text.FgHiWhite, text.BgGreen}.Sprint(" version ") +
+			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appVersion),
 		text.Colors{text.FgHiWhite, text.BgGreen}.Sprint(" license ") +
 			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appLicense),
 		text.Colors{text.FgHiWhite, text.BgGreen}.Sprint(" copyright ") +
 			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appCopyright),
-		text.Colors{text.FgHiWhite, text.BgGreen}.Sprint(" version ") +
-			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appVersion),
 	}
-
-	shieldsText := strings.Join(shields, " ")
-	centeredShields := text.AlignCenter.Apply(shieldsText, appViewWidth)
 
 	var logoText string
 	for _, logoLine := range logo {
@@ -145,7 +142,7 @@ func printHeader() {
 		centeredLogo += text.AlignCenter.Apply(formattedLine, appViewWidth) + "\n"
 	}
 
-	fmt.Printf("\n%s\n%s\n\n", centeredLogo, centeredShields)
+	fmt.Printf("\n%s\n %s\n\n", centeredLogo, strings.Join(shields, " "))
 }
 
 func printDescriptor(cmd *cobra.Command) {
