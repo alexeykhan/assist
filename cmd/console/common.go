@@ -198,15 +198,6 @@ func getTableWriter() table.Writer {
 	return t
 }
 
-func getBool(cmd *cobra.Command, name string) bool {
-	value, err := cmd.Flags().GetBool(name)
-	if err != nil {
-		_ = cmd.Help()
-		log.Fatal(err)
-	}
-	return value
-}
-
 func getFloat32(cmd *cobra.Command, name string) float32 {
 	value, err := cmd.Flags().GetFloat32(name)
 	if err != nil {
