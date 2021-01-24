@@ -47,7 +47,6 @@ var decomposeSavingsConfig = struct {
 		"./oracle decompose savings --goal=1234567.89 --years=10 --interest=6.5",
 		"./oracle decompose savings -g=1234567.89 -y=10 -i=6.5",
 		"./oracle decompose savings --help",
-		"./oracle decompose savings -h",
 	},
 }
 
