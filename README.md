@@ -97,8 +97,8 @@ $ ./bin/assist decompose savings -g 1234567.89 -y 10 -i 6.5
 
 [comment]: <> (соблюдать конкретные условия. Например:)
 
-[comment]: <> (`./bin/assist calculate savings --payment 35000 --years 10 --interest=6.5`)
+[comment]: <> (`./bin/assistCmd calculate savings --payment 35000 --years 10 --interest=6.5`)
 
 ## Локальная сборка
 
-`make linter && make assist && ./bin/assist -h`
+`make linter && make assist && ./bin/assistCmd -h`
