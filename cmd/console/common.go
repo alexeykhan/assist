@@ -139,16 +139,56 @@ func printHeader() {
 
 	var logoText string
 	for _, logoLine := range logo {
-		formatedLine := boldGreenFormat.Sprint(logoLine)
-		logoText += formatedLine + "\n"
+		formattedLine := boldGreenFormat.Sprint(logoLine)
+		logoText += formattedLine + "\n"
 	}
 	var centeredLogo string
 	for _, logoLine := range logo {
-		formatedLine := boldGreenFormat.Sprint(logoLine)
-		centeredLogo += text.AlignCenter.Apply(formatedLine, appViewWidth) + "\n"
+		formattedLine := boldGreenFormat.Sprint(logoLine)
+		centeredLogo += text.AlignCenter.Apply(formattedLine, appViewWidth) + "\n"
 	}
 
 	fmt.Printf("\n%s\n%s\n\n", centeredLogo, centeredShields)
+}
+
+func printDescriptor(cmd *cobra.Command) {
+	var maxLen int
+	var flagLines []string
+	fmt.Println(cmd.Example)
+	cmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+		if flag.Hidden {
+			return
+		}
+
+		line := ""
+		if flag.Shorthand != "" && flag.ShorthandDeprecated == "" {
+			line = fmt.Sprintf("  -%s, --%s", flag.Shorthand, flag.Name)
+		} else {
+			line = fmt.Sprintf("      --%s", flag.Name)
+		}
+
+		varname, usage := unquoteUsage(flag)
+		line += " " + varname
+
+		line += "\x00"
+		if len(line) > maxLen {
+			maxLen = len(line)
+		}
+
+		line += usage
+		flagLines = append(flagLines, line)
+	})
+
+	if len(flagLines) > 0 {
+		fmt.Println(text.Colors{text.Bold, text.FgHiWhite}.Sprint(" Параметры и опции команды:"))
+		for _, line := range flagLines {
+			sidx := strings.Index(line, "\x00")
+			spacing := strings.Repeat(" ", maxLen-sidx)
+			concatenated := line[:sidx] + spacing + " " + wrapUsage(line[sidx+1:], appViewWidth, maxLen+1)
+			fmt.Println(text.Colors{text.FgHiWhite}.Sprint(concatenated))
+		}
+	}
+	fmt.Println()
 }
 
 func getTableWriter() table.Writer {

@@ -33,7 +33,6 @@ var decomposeSavingsFlags = struct {
 	InterestRate  pflag.Flag
 	FinancialGoal pflag.Flag
 	Capitalize    pflag.Flag
-	Help          pflag.Flag
 }{
 	YearsLeft: pflag.Flag{
 		Name:      "years",
@@ -59,22 +58,15 @@ var decomposeSavingsFlags = struct {
 		Usage:     "Включать капитализацию процентов или нет",
 		DefValue:  "",
 	},
-	Help: pflag.Flag{
-		Name:      "help",
-		Shorthand: "h",
-		Usage:     "Документация по команде",
-		DefValue:  "",
-	},
 }
 
 var decomposeSavings = &cobra.Command{
 	Use:   "savings",
-	Short: "Рассчитать, сколько денег будет по итогу периоду",
 	Example: example(
-		"Декомпозиция финансовой цели",
-		"Узнайте, сколько денег необходимо инвестировать каждый месяц, квартал, "+
-			"полгода или год, чтобы успешно накопить необходимую сумму за обозначенный "+
-			"срок в годах с учетом капиталлизации процентов или без.",
+		"Декомпозиция накопления",
+		"Узнайте, какую сумму необходимо инвестировать каждый месяц, чтобы при "+
+			"заданных доходности портфеля P% годовых, горизонте инвестирования N лет и "+
+			"капитализации процентов накопить к концу срока нужную сумму X.",
 		[]string{
 			"./oracle decompose savings --goal=1234567.89 --years=10 --interest=6.5",
 			"./oracle decompose savings -g=1234567.89 -y=10 -i=6.5 -c=false",

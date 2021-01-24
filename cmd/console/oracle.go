@@ -44,5 +44,22 @@ var oracle = &cobra.Command{
 	Use:              "oracle",
 	SilenceUsage:     true,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) { printHeader() },
-	Run:              func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
+	Run:              func(cmd *cobra.Command, args []string) {
+		_ = cmd.Help()
+	},
+	Example: example(
+		"Персональный ассистент для планирования личных финансов",
+		"Используйте команду `decompose`, чтобы декомпозировать финансовую цель, например, "+
+			"узнать, сколько нужно инвестировать каждый месяц, чтобы через N лет накопить сумму Q, "+
+			"если капитализировать проценты и поддерживать доходность портфеля на уровне P% годовых.\n\n"+
+			"Используйте команду `calculate`, чтобы посчитать результат в деньгах к концу срока "+
+			"при соблюдении заданных условий, например, сумму накоплений через N лет, если ежемесячно "+
+			"пополнять счет на сумму Q, капитализировать проценты и поддерживать доходность портфеля X%.",
+		[]string{
+			"./oracle decompose [command] [options]",
+			"./oracle calculate [command] [options]",
+			"./oracle --help",
+			"./oracle -h",
+		},
+	),
 }
