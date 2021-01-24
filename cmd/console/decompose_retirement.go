@@ -57,7 +57,6 @@ var decomposeRetirementFlags = struct {
 	Years    pflag.Flag
 	Interest pflag.Flag
 	Expenses pflag.Flag
-	Detailed pflag.Flag
 }{
 	Years: pflag.Flag{
 		Name: "years", Shorthand: "y",
@@ -70,10 +69,6 @@ var decomposeRetirementFlags = struct {
 	Expenses: pflag.Flag{
 		Name: "expenses", Shorthand: "e",
 		Usage: "Сумма ежемесячных расходов в течение пенсионного периода",
-	},
-	Detailed: pflag.Flag{
-		Name: "detailed", Shorthand: "d",
-		Usage: "Выводить детализированную декомпозицию по месяцам",
 	},
 }
 
@@ -90,7 +85,7 @@ var decomposeRetirement = &cobra.Command{
 		years := getUint8(cmd, decomposeRetirementFlags.Years.Name)
 		interest := getFloat32(cmd, decomposeRetirementFlags.Interest.Name)
 		expenses := getFloat32(cmd, decomposeRetirementFlags.Expenses.Name)
-		detailed := getBool(cmd, decomposeRetirementFlags.Detailed.Name)
+		detailed := getBool(cmd, detailedFlag.Name)
 
 		var retirement float32
 		// if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {

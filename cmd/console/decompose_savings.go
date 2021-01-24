@@ -86,6 +86,7 @@ var decomposeSavings = &cobra.Command{
 		goal := getFloat32(cmd, decomposeSavingsFlags.Goal.Name)
 		years := getUint8(cmd, decomposeSavingsFlags.Years.Name)
 		interest := getFloat32(cmd, decomposeSavingsFlags.Interest.Name)
+		detailed := getBool(cmd, detailedFlag.Name)
 
 		var payment float32
 		if payment, err = core.DecomposeSavings(goal, interest, years); err != nil {
@@ -137,13 +138,16 @@ var decomposeSavings = &cobra.Command{
 			}
 
 			next = i + 1
-			if next >= 12 && next%12 == 0 || i == periods {
+			index = next
+
+			if !detailed {
+				index = next / 12
 				if i == periods {
 					index = tableFooterTotal
-				} else {
-					index = next / 12
 				}
+			}
 
+			if detailed || (next >= 12 && next%12 == 0 || i == periods) {
 				t.AppendRow(table.Row{
 					index,
 					fmt.Sprintf("%.2f", personalInvestments),
