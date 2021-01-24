@@ -35,7 +35,7 @@ var helpFlag = pflag.Flag{
 }
 
 func init() {
-	oracle.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
+	assist.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	decompose.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 
 	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.FinancialGoal.Name, decomposeSavingsFlags.FinancialGoal.Shorthand, 0, decomposeSavingsFlags.FinancialGoal.Usage)
@@ -46,17 +46,17 @@ func init() {
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.InterestRate.Name)
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.FinancialGoal.Name)
 
-	oracle.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+	assist.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		printHeader()
 		printDescriptor(cmd)
 	})
 }
 
 func main() {
-	oracle.AddCommand(decompose)
+	assist.AddCommand(decompose)
 	decompose.AddCommand(decomposeSavings)
 
-	if err := oracle.Execute(); err != nil {
+	if err := assist.Execute(); err != nil {
 		os.Exit(1)
 	}
 }

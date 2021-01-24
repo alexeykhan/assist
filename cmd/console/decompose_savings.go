@@ -44,9 +44,9 @@ var decomposeSavingsConfig = struct {
 		"на протяжении %d %s, чтобы при средней доходности портфеля %.2f%% " +
 		"годовых и ежемесячной капитализации процентов накопить %.2f руб.",
 	examples: []string{
-		"./oracle decompose savings --goal=1234567.89 --years=10 --interest=6.5",
-		"./oracle decompose savings -g=1234567.89 -y=10 -i=6.5",
-		"./oracle decompose savings --help",
+		"./assist decompose savings --goal=1234567.89 --years=10 --interest=6.5",
+		"./assist decompose savings -g=1234567.89 -y=10 -i=6.5",
+		"./assist decompose savings --help",
 	},
 }
 

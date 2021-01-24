@@ -130,8 +130,6 @@ func printHeader() {
 			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appCopyright),
 		text.Colors{text.FgHiWhite, text.BgGreen}.Sprint(" version ") +
 			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appVersion),
-		text.Colors{text.FgHiWhite, text.BgGreen}.Sprint(" updated ") +
-			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appUpdated),
 	}
 
 	shieldsText := strings.Join(shields, " ")

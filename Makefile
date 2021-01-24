@@ -3,7 +3,7 @@ export GOSUMDB=off
 
 BIN := $(CURDIR)/bin
 CMD := $(CURDIR)/cmd
-CLI_BIN_NAME := oracle
+CLI_BIN_NAME := assist
 CLI_CMD_NAME := console
 LINTER_TAG := v1.32.2
 LINTER_BIN := $(BIN)/golangci-lint
@@ -45,7 +45,7 @@ linter:
 	@echo "# Installing golangci-lint ..."
 	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin $(LINTER_TAG)
 
-.PHONY: build-cli
-build-cli:
-	@echo "# Building cli ..."
+.PHONY: assist
+assist:
+	@echo "# Building assist ..."
 	@go build -o $(BIN)/$(CLI_BIN_NAME) $(CMD)/$(CLI_CMD_NAME)
