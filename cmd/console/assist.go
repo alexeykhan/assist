@@ -26,22 +26,25 @@ import (
 
 const (
 	appVersion   = "0.1.0"
-	appUpdated   = "2021-01-23"
 	appCopyright = "alexeykhan"
 	appLicense   = "MIT"
-	appViewWidth = 78
+	appViewWidth = 56
 )
 
 var logo = []string{
-	`  ooooooo   oooooooooo       o       oooooooo8 ooooo       ooooooooooo`,
-	`o888   888o  888    888     888    o888     88  888         888    88 `,
-	`888     888  888oooo88     8  88   888          888         888ooo8   `,
-	`888o   o888  888  88o     8oooo88  888o     oo  888      o  888    oo `,
-	`  88ooo88   o888o  88o8 o88o  o888o 888oooo88  o888ooooo88 o888ooo8888`,
+	`   ______    ______    ______   ______   ______   ________`,
+	`  /      \  /      \  /      \ /      | /      \ /        |`,
+	` /$$$$$$  |/$$$$$$  |/$$$$$$  |$$$$$$/ /$$$$$$  |$$$$$$$$/`,
+	`$$ |__$$ |$$ \__$$/ $$ \__$$/   $$ |  $$ \__$$/    $$ |`,
+	`$$    $$ |$$      \ $$      \   $$ |  $$      \    $$ |`,
+	`$$$$$$$$ | $$$$$$  | $$$$$$  |  $$ |   $$$$$$  |   $$ |`,
+	`$$ |  $$ |/  \__$$ |/  \__$$ | _$$ |_ /  \__$$ |   $$ |`,
+	`$$ |  $$ |$$    $$/ $$    $$/ / $$   |$$    $$/    $$ |`,
+	`$$/   $$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/     $$/`,
 }
 
-var oracle = &cobra.Command{
-	Use:              "oracle",
+var assist = &cobra.Command{
+	Use:              "assist",
 	SilenceUsage:     true,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) { printHeader() },
 	Run: func(cmd *cobra.Command, args []string) {
@@ -55,9 +58,9 @@ var oracle = &cobra.Command{
 			"Используйте команду `calculate`, чтобы посмотреть, каких результатов можно достигнуть "+
 			"за указанный период, если соблюдать конкретные условия. Подход: от текущей ситуации.",
 		[]string{
-			"./oracle decompose --help",
-			"./oracle calculate --help",
-			"./oracle --help",
+			"./assist decompose --help",
+			"./assist calculate --help",
+			"./assist --help",
 		},
 	),
 }
