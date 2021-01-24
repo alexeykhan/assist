@@ -37,6 +37,7 @@ const (
 	appLicense   = "MIT"
 	appViewWidth = 60
 
+	commandOptions = " Параметры и опции команды:"
 	commandUsageExamples = "\n Примеры использования:\n"
 
 	tableColumnYear           = "Год"
@@ -149,11 +150,6 @@ func printHeader() {
 			text.Colors{text.Bold, text.FgHiGreen}.Sprintf(" %s ", appCopyright),
 	}
 
-	var logoText string
-	for _, logoLine := range logo {
-		formattedLine := boldGreenFormat.Sprint(logoLine)
-		logoText += formattedLine + "\n"
-	}
 	var centeredLogo string
 	for _, logoLine := range logo {
 		formattedLine := boldGreenFormat.Sprint(logoLine)
@@ -164,8 +160,10 @@ func printHeader() {
 }
 
 func printDescriptor(cmd *cobra.Command) {
-	var maxLen int
-	var flagLines []string
+	var (
+		maxLen    int
+		flagLines []string
+	)
 	fmt.Println(cmd.Example)
 	cmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
 		if flag.Hidden {
@@ -192,7 +190,7 @@ func printDescriptor(cmd *cobra.Command) {
 	})
 
 	if len(flagLines) > 0 {
-		fmt.Println(text.Colors{text.Bold, text.FgHiWhite}.Sprint(" Параметры и опции команды:"))
+		fmt.Println(text.Colors{text.Bold, text.FgHiWhite}.Sprint(commandOptions))
 		for _, line := range flagLines {
 			sIdx := strings.Index(line, "\x00")
 			spacing := strings.Repeat(" ", maxLen-sIdx)
