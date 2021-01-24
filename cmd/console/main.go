@@ -45,13 +45,21 @@ func init() {
 	assistCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	decomposeCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 
-	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.FinancialGoal.Name, decomposeSavingsFlags.FinancialGoal.Shorthand, 0, decomposeSavingsFlags.FinancialGoal.Usage)
-	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.YearsLeft.Name, decomposeSavingsFlags.YearsLeft.Shorthand, 0, decomposeSavingsFlags.YearsLeft.Usage)
-	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.InterestRate.Name, decomposeSavingsFlags.InterestRate.Shorthand, 0, decomposeSavingsFlags.InterestRate.Usage)
+	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.Goal.Name, decomposeSavingsFlags.Goal.Shorthand, 0, decomposeSavingsFlags.Goal.Usage)
+	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.Years.Name, decomposeSavingsFlags.Years.Shorthand, 0, decomposeSavingsFlags.Years.Usage)
+	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.Interest.Name, decomposeSavingsFlags.Interest.Shorthand, 0, decomposeSavingsFlags.Interest.Usage)
 	decomposeSavings.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
-	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.YearsLeft.Name)
-	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.InterestRate.Name)
-	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.FinancialGoal.Name)
+	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.Years.Name)
+	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.Interest.Name)
+	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.Goal.Name)
+
+	decomposeRetirement.Flags().Float32P(decomposeRetirementFlags.Expenses.Name, decomposeRetirementFlags.Expenses.Shorthand, 0, decomposeRetirementFlags.Expenses.Usage)
+	decomposeRetirement.Flags().Uint8P(decomposeRetirementFlags.Years.Name, decomposeRetirementFlags.Years.Shorthand, 0, decomposeRetirementFlags.Years.Usage)
+	decomposeRetirement.Flags().Float32P(decomposeRetirementFlags.Interest.Name, decomposeRetirementFlags.Interest.Shorthand, 0, decomposeRetirementFlags.Interest.Usage)
+	decomposeRetirement.Flags().BoolP(decomposeRetirementFlags.Detailed.Name, decomposeRetirementFlags.Detailed.Shorthand, false, decomposeRetirementFlags.Detailed.Usage)
+	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Years.Name)
+	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Interest.Name)
+	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Expenses.Name)
 
 	assistCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		printHeader()
@@ -62,6 +70,7 @@ func init() {
 func main() {
 	assistCmd.AddCommand(decomposeCmd)
 	decomposeCmd.AddCommand(decomposeSavings)
+	decomposeCmd.AddCommand(decomposeRetirement)
 
 	if err := assistCmd.Execute(); err != nil {
 		os.Exit(1)

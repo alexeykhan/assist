@@ -27,6 +27,7 @@ import (
 type (
 	Assist interface {
 		DecomposeSavings(goal, interest float32, years uint8) (float32, error)
+		DecomposeRetirement(expenses, interest float32, years uint8) (float32, error)
 		Validator() Validator
 		View() View
 	}
@@ -68,6 +69,33 @@ func (a assist) DecomposeSavings(goal, interest float32, years uint8) (payment f
 	// выходит из суммы геометрической прогрессии, в которой первый член
 	// равен payment*(1+periodRate), а знаменатель прогрессии - (1+periodRate).
 	payment = (goal * periodRate) / (coefficient*finalCoefficient - coefficient)
+
+	return
+}
+
+func (a assist) DecomposeRetirement(expenses, interest float32, years uint8) (retirement float32, err error) {
+	if err = a.validator.HumanLifeYears(years); err != nil {
+		return retirement, err
+	}
+	if err = a.validator.PositiveFloat32(interest); err != nil {
+		return retirement, fmt.Errorf("invalid interest rate: %w", err)
+	}
+	if err = a.validator.PositiveFloat32(expenses); err != nil {
+		return retirement, fmt.Errorf("invalid expenses: %w", err)
+	}
+
+	periodRate := interest * 0.01 / 12
+	coefficient := 1 + periodRate
+
+	finalCoefficient := coefficient
+	for i := 1; i < 12*int(years); i++ {
+		finalCoefficient *= coefficient
+	}
+
+	// Формула сложных процентов, начисляемых несколько раз в течение года,
+	// выходит из суммы геометрической прогрессии, в которой первый член
+	// равен payment*(1+periodRate), а знаменатель прогрессии - (1+periodRate).
+	retirement = (expenses * periodRate) / (coefficient*finalCoefficient - coefficient)
 
 	return
 }

@@ -55,21 +55,21 @@ var decomposeSavingsConfig = struct {
 }
 
 var decomposeSavingsFlags = struct {
-	YearsLeft     pflag.Flag
-	InterestRate  pflag.Flag
-	FinancialGoal pflag.Flag
+	Goal     pflag.Flag
+	Years    pflag.Flag
+	Interest pflag.Flag
 }{
-	YearsLeft: pflag.Flag{
+	Goal: pflag.Flag{
+		Name: "goal", Shorthand: "g",
+		Usage: "Ваша финансовая цель, которую нужно достгнуть за заданный период",
+	},
+	Years: pflag.Flag{
 		Name: "years", Shorthand: "y",
 		Usage: "Количество лет, за которое необходимо накопить нужную сумму",
 	},
-	InterestRate: pflag.Flag{
+	Interest: pflag.Flag{
 		Name: "interest", Shorthand: "i",
 		Usage: "Доходность вашего инвестиционного портфеля в процентах годовых",
-	},
-	FinancialGoal: pflag.Flag{
-		Name: "goal", Shorthand: "g",
-		Usage: "Ваша финансовая цель, которую нужно достгнуть за заданный период",
 	},
 }
 
@@ -83,12 +83,11 @@ var decomposeSavings = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		printHeader()
 
-		goal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)
-		years := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
-		interest := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
+		goal := getFloat32(cmd, decomposeSavingsFlags.Goal.Name)
+		years := getUint8(cmd, decomposeSavingsFlags.Years.Name)
+		interest := getFloat32(cmd, decomposeSavingsFlags.Interest.Name)
 
 		var payment float32
-		periodRate := interest * 0.01 / 12
 		if payment, err = core.DecomposeSavings(goal, interest, years); err != nil {
 			return err
 		}
@@ -125,6 +124,7 @@ var decomposeSavings = &cobra.Command{
 		)
 
 		periods := 12 * int(years)
+		periodRate := interest * 0.01 / 12
 		for i := 0; i <= periods; i++ {
 			interest := totalSavings * periodRate
 			interestIncome += interest
