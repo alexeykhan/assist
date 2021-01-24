@@ -24,6 +24,7 @@ import (
 	"fmt"
 
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -61,7 +62,7 @@ var decomposeSavingsFlags = struct {
 }
 
 var decomposeSavings = &cobra.Command{
-	Use:   "savings",
+	Use: "savings",
 	Example: example(
 		"Декомпозиция накопления",
 		"Узнайте, какую сумму необходимо инвестировать каждый месяц, чтобы при "+
@@ -119,35 +120,119 @@ var decomposeSavings = &cobra.Command{
 		var checkInterest float32
 		var checkPersonal float32
 
+		yearColumnWidth := 6
+		moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 16) / 3
+
 		t := getTableWriter()
-		t.SetTitle("План по достижению цели")
-		t.AppendHeader(table.Row{"Месяц", "Вложения", "Проценты", "Накопления"})
+		t.SetAllowedRowLength(appViewWidth)
+		t.AppendHeader(table.Row{"Год", "Вложения", "Проценты", "Накопления"})
+		t.SetStyle(table.Style{
+			Name: "myNewStyle",
+			Box: table.BoxStyle{
+				BottomLeft:       " ┗",
+				BottomRight:      "┛",
+				BottomSeparator:  "━┻",
+				Left:             " ┃",
+				LeftSeparator:    " ┣",
+				MiddleHorizontal: "━",
+				MiddleSeparator:  "━╋",
+				MiddleVertical:   " ┃",
+				PaddingLeft:      " ",
+				PaddingRight:     " ",
+				Right:            "┃",
+				RightSeparator:   "┫",
+				TopLeft:          " ┏",
+				TopRight:         "┓",
+				TopSeparator:     "━┳",
+				UnfinishedRow:    " ~~~",
+			},
+			Color: table.ColorOptions{
+				Footer:       text.Colors{text.FgHiWhite},
+				Header:       text.Colors{text.FgHiWhite},
+				Row:          text.Colors{text.FgHiWhite},
+				RowAlternate: text.Colors{text.FgHiWhite},
+			},
+			Format: table.FormatOptions{
+				Footer: text.FormatUpper,
+				Header: text.FormatUpper,
+				Row:    text.FormatDefault,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetColumnConfigs([]table.ColumnConfig{
+			{
+				Name:        "Год",
+				Align:       text.AlignCenter,
+				AlignFooter: text.AlignLeft,
+				AlignHeader: text.AlignCenter,
+				WidthMin:    yearColumnWidth,
+				WidthMax:    yearColumnWidth,
+			},
+			{
+				Name:        "Вложения",
+				Align:       text.AlignCenter,
+				AlignFooter: text.AlignLeft,
+				AlignHeader: text.AlignCenter,
+				WidthMin:    moneyColumnMaxWidth,
+				WidthMax:    moneyColumnMaxWidth,
+			},
+			{
+				Name:        "Проценты",
+				Align:       text.AlignCenter,
+				AlignFooter: text.AlignLeft,
+				AlignHeader: text.AlignCenter,
+				WidthMin:    moneyColumnMaxWidth,
+				WidthMax:    moneyColumnMaxWidth,
+			},
+			{
+				Name:        "Накопления",
+				Align:       text.AlignCenter,
+				AlignFooter: text.AlignLeft,
+				AlignHeader: text.AlignCenter,
+				WidthMin:    moneyColumnMaxWidth,
+				WidthMax:    moneyColumnMaxWidth,
+			},
+		})
 
 		// Проценты с последнего месяца всего горизонта инвестирования начисляются
 		// в следующем месяце, поэтому итераций в цикле на 1 больше и в этой последней
 		// итерации мы прибавляем только проценты с прошлого месяца.
 
 		var index interface{}
+		var next int
 		periods := 12 * int(yearsLeft)
 		for i := 0; i <= periods; i++ {
 			interest := checkTotal * periodRate
 			checkInterest += interest
 			if i == periods {
 				checkTotal += interest
-				index = "Итого"
 				t.AppendSeparator()
 			} else {
 				checkTotal += interest + monthlyPayment
 				checkPersonal += monthlyPayment
-				index = i + 1
 			}
 
-			t.AppendRow(table.Row{
-				index,
-				fmt.Sprintf("%.2f", checkPersonal),
-				fmt.Sprintf("%.2f", checkInterest),
-				fmt.Sprintf("%.2f", checkTotal),
-			})
+			next = i + 1
+			if next >= 12 && next%12 == 0 || i == periods {
+				if i == periods {
+					index = "ИТОГО"
+				} else {
+					index = next / 12
+				}
+
+				t.AppendRow(table.Row{
+					index,
+					fmt.Sprintf("%.2f", checkPersonal),
+					fmt.Sprintf("%.2f", checkInterest),
+					fmt.Sprintf("%.2f", checkTotal),
+				})
+			}
 		}
 		t.Render()
 
