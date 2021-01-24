@@ -36,10 +36,9 @@ var decompose = &cobra.Command{
 			"дохода.\n\nПример: узнайте минимальный объем портфеля с доходностью 5% годовых, чтобы к выходу "+
 			"на пенсию через 35 лет можно было тратить 100,000 руб в месяц на протяжении следующих 25 лет.",
 		[]string{
-			"./oracle decompose savings [options]",
-			"./oracle decompose expenses [options]",
+			"./oracle decompose savings --help",
+			"./oracle decompose expenses --help",
 			"./oracle decompose --help",
-			"./oracle decompose -h",
 		},
 	),
 }
