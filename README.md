@@ -1,4 +1,4 @@
-# ORACLE.
+# ASSIST.
 
 <p>
     <a href="https://pkg.go.dev/github.com/alexeykhan/assist">
