@@ -33,16 +33,20 @@ import (
 var decomposeSavingsConfig = struct {
 	title    string
 	about    string
-	template string
+	overview string
+	results  string
 	examples []string
 }{
 	title: "Декомпозиция накопления суммы",
 	about: "Узнайте, какую сумму необходимо инвестировать каждый месяц, чтобы при " +
 		"заданных доходности портфеля P% годовых, горизонте инвестирования N лет и " +
 		"ежемесячной капитализации процентов накопить к концу срока нужную сумму X.",
-	template: "Задача: рассчитать сумму, которую необходимо инвестировать каждый месяц " +
-		"на протяжении %d %s, чтобы при средней доходности портфеля %.2f%% " +
+	overview: "Задача: рассчитать сумму, которую необходимо инвестировать каждый месяц " +
+		"на протяжении %s, чтобы при средней доходности портфеля %.2f%% " +
 		"годовых и ежемесячной капитализации процентов накопить %.2f руб.",
+	results: "\n > Ежемесячный взнос составит: %.2f\n" +
+		" > Сумма собственных вложений за период: %.2f\n" +
+		" > Сумма начисленных процентов за период: %.2f\n\n",
 	examples: []string{
 		"./bin/assist decompose savings --goal=1234567.89 --years=10 --interest=6.5",
 		"./bin/assist decompose savings -g=1234567.89 -y=10 -i=6.5",
@@ -56,195 +60,103 @@ var decomposeSavingsFlags = struct {
 	FinancialGoal pflag.Flag
 }{
 	YearsLeft: pflag.Flag{
-		Name:      "years",
-		Shorthand: "y",
-		Usage:     "Количество лет, за которое необходимо накопить нужную сумму",
-		DefValue:  "",
+		Name: "years", Shorthand: "y",
+		Usage: "Количество лет, за которое необходимо накопить нужную сумму",
 	},
 	InterestRate: pflag.Flag{
-		Name:      "interest",
-		Shorthand: "i",
-		Usage:     "Доходность вашего инвестиционного портфеля в процентах годовых",
-		DefValue:  "",
+		Name: "interest", Shorthand: "i",
+		Usage: "Доходность вашего инвестиционного портфеля в процентах годовых",
 	},
 	FinancialGoal: pflag.Flag{
-		Name:      "goal",
-		Shorthand: "g",
-		Usage:     "Ваша финансовая цель, которую нужно достгнуть за заданный период",
-		DefValue:  "",
+		Name: "goal", Shorthand: "g",
+		Usage: "Ваша финансовая цель, которую нужно достгнуть за заданный период",
 	},
 }
 
 var decomposeSavings = &cobra.Command{
 	Use: "savings",
-	Example: example(
+	Example: commandOverview(
 		decomposeSavingsConfig.title,
 		decomposeSavingsConfig.about,
 		decomposeSavingsConfig.examples,
 	),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		printHeader()
 
-		yearsLeft := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
-		annualRate := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
-		financialGoal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)
+		goal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)
+		years := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
+		interest := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
 
-		yearsInfo := "лет"
-		if yearsLeft != 11 && yearsLeft%10 == 1 {
-			yearsInfo = "года"
+		var payment float32
+		periodRate := interest * 0.01 / 12
+		if payment, err = core.DecomposeSavings(goal, interest, years); err != nil {
+			return err
 		}
+
+		view := core.View()
 
 		boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
 		normalWhiteText := text.Colors{text.FgHiWhite}
 
-		var task string
 		upperCaseTitle := text.FormatUpper.Apply(decomposeSavingsConfig.title)
 		formattedTitle := boldWhiteText.Sprintf(" %s", upperCaseTitle)
-		task += formattedTitle + "\n\n"
 
-		filledTask := fmt.Sprintf(decomposeSavingsConfig.template, yearsLeft, yearsInfo, annualRate, financialGoal)
+		yearsInfo := view.YearsDuration(years)
+		filledTask := fmt.Sprintf(decomposeSavingsConfig.overview, yearsInfo, interest, goal)
 		wrappedTask := text.WrapSoft(filledTask, appViewWidth-2)
+
+		taskOverview := formattedTitle + "\n\n"
 		for _, line := range strings.Split(wrappedTask, "\n") {
 			trimmedLine := strings.TrimSpace(line)
-			task += normalWhiteText.Sprintf(" %s\n", trimmedLine)
+			taskOverview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
 		}
 
-		fmt.Println(task)
+		t := getTableWriter(
+			tableColumnYear,
+			tableColumnInvestments,
+			tableColumnInterestIncome,
+			tableColumnTotalSavings)
 
-		periodRate := annualRate * 0.01 / 12
-		coefficient := 1 + periodRate
+		var (
+			next  int
+			index interface{}
 
-		finalCoefficient := coefficient
-		for i := 1; i < 12*int(yearsLeft); i++ {
-			finalCoefficient *= coefficient
-		}
+			totalSavings, interestIncome, personalInvestments float32
+		)
 
-		monthlyPayment := (financialGoal * periodRate) / (coefficient*finalCoefficient - coefficient)
-
-		var checkTotal float32
-		var checkInterest float32
-		var checkPersonal float32
-
-		yearColumnWidth := 6
-		moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 8) / 3
-
-		t := getTableWriter()
-		t.SetAllowedRowLength(appViewWidth)
-		t.AppendHeader(table.Row{"Год", "Вложения", "Проценты", "Накопления"})
-		t.SetStyle(table.Style{
-			Name: "myNewStyle",
-			Box: table.BoxStyle{
-				BottomLeft:       " ┗",
-				BottomRight:      "┛",
-				BottomSeparator:  "━┻",
-				Left:             " ┃",
-				LeftSeparator:    " ┣",
-				MiddleHorizontal: "━",
-				MiddleSeparator:  "━╋",
-				MiddleVertical:   " ┃",
-				PaddingLeft:      "",
-				PaddingRight:     "",
-				Right:            "┃",
-				RightSeparator:   "┫",
-				TopLeft:          " ┏",
-				TopRight:         "┓",
-				TopSeparator:     "━┳",
-				// UnfinishedRow:    " ~~~",
-			},
-			Color: table.ColorOptions{
-				Footer:       text.Colors{text.FgHiWhite},
-				Header:       text.Colors{text.FgHiWhite},
-				Row:          text.Colors{text.FgHiWhite},
-				RowAlternate: text.Colors{text.FgHiWhite},
-			},
-			Format: table.FormatOptions{
-				Footer: text.FormatUpper,
-				Header: text.FormatUpper,
-				Row:    text.FormatDefault,
-			},
-			Options: table.Options{
-				DrawBorder:      true,
-				SeparateColumns: true,
-				SeparateFooter:  true,
-				SeparateHeader:  true,
-				SeparateRows:    false,
-			},
-		})
-		t.SetColumnConfigs([]table.ColumnConfig{
-			{
-				Name:        "Год",
-				Align:       text.AlignCenter,
-				AlignFooter: text.AlignLeft,
-				AlignHeader: text.AlignCenter,
-				WidthMin:    yearColumnWidth,
-				WidthMax:    yearColumnWidth,
-			},
-			{
-				Name:        "Вложения",
-				Align:       text.AlignCenter,
-				AlignFooter: text.AlignLeft,
-				AlignHeader: text.AlignCenter,
-				WidthMin:    moneyColumnMaxWidth,
-				WidthMax:    moneyColumnMaxWidth,
-			},
-			{
-				Name:        "Проценты",
-				Align:       text.AlignCenter,
-				AlignFooter: text.AlignLeft,
-				AlignHeader: text.AlignCenter,
-				WidthMin:    moneyColumnMaxWidth,
-				WidthMax:    moneyColumnMaxWidth,
-			},
-			{
-				Name:        "Накопления",
-				Align:       text.AlignCenter,
-				AlignFooter: text.AlignLeft,
-				AlignHeader: text.AlignCenter,
-				WidthMin:    moneyColumnMaxWidth,
-				WidthMax:    moneyColumnMaxWidth,
-			},
-		})
-
-		// Проценты с последнего месяца всего горизонта инвестирования начисляются
-		// в следующем месяце, поэтому итераций в цикле на 1 больше и в этой последней
-		// итерации мы прибавляем только проценты с прошлого месяца.
-
-		var index interface{}
-		var next int
-		periods := 12 * int(yearsLeft)
+		periods := 12 * int(years)
 		for i := 0; i <= periods; i++ {
-			interest := checkTotal * periodRate
-			checkInterest += interest
+			interest := totalSavings * periodRate
+			interestIncome += interest
 			if i == periods {
-				checkTotal += interest
+				totalSavings += interest
 				t.AppendSeparator()
 			} else {
-				checkTotal += interest + monthlyPayment
-				checkPersonal += monthlyPayment
+				totalSavings += interest + payment
+				personalInvestments += payment
 			}
 
 			next = i + 1
 			if next >= 12 && next%12 == 0 || i == periods {
 				if i == periods {
-					index = "ИТОГО"
+					index = tableFooterTotal
 				} else {
 					index = next / 12
 				}
 
 				t.AppendRow(table.Row{
 					index,
-					fmt.Sprintf("%.2f", checkPersonal),
-					fmt.Sprintf("%.2f", checkInterest),
-					fmt.Sprintf("%.2f", checkTotal),
+					fmt.Sprintf("%.2f", personalInvestments),
+					fmt.Sprintf("%.2f", interestIncome),
+					fmt.Sprintf("%.2f", totalSavings),
 				})
 			}
 		}
-		t.Render()
 
-		fmt.Printf(
-			"\n > Ежемесячный взнос составит: %.2f\n"+
-				" > Сумма собственных вложений за период: %.2f\n"+
-				" > Сумма начисленных процентов за период: %.2f\n\n",
-			monthlyPayment, checkPersonal, checkInterest)
+		fmt.Println(taskOverview)
+		fmt.Println(t.Render())
+		fmt.Printf(decomposeSavingsConfig.results, payment, personalInvestments, interestIncome)
+
+		return nil
 	},
 }

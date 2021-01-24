@@ -22,10 +22,10 @@ package main
 
 import "github.com/spf13/cobra"
 
-var decompose = &cobra.Command{
+var decomposeCmd = &cobra.Command{
 	Use: "decompose",
 	Run: func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
-	Example: example(
+	Example: commandOverview(
 		"Декомпозиция финансовой цели",
 		"Используйте команду `savings`, чтобы определить сумму ежемесячных инвестиций, необходимых "+
 			"для достижения финансовой цели за заданный период в годах с доходностью портфеля P% годовых "+

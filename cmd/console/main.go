@@ -25,18 +25,25 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/alexeykhan/assist/internal/assist"
 )
 
-var helpFlag = pflag.Flag{
-	Name:      "help",
-	Shorthand: "h",
-	Usage:     "Документация по команде",
-	DefValue:  "",
-}
+var (
+	core     assist.Assist
+	helpFlag pflag.Flag
+)
 
 func init() {
-	assist.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
-	decompose.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
+	core = assist.New()
+
+	helpFlag = pflag.Flag{
+		Name: "help", Shorthand: "h",
+		Usage: "Документация по команде",
+	}
+
+	assistCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
+	decomposeCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 
 	decomposeSavings.Flags().Float32P(decomposeSavingsFlags.FinancialGoal.Name, decomposeSavingsFlags.FinancialGoal.Shorthand, 0, decomposeSavingsFlags.FinancialGoal.Usage)
 	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.YearsLeft.Name, decomposeSavingsFlags.YearsLeft.Shorthand, 0, decomposeSavingsFlags.YearsLeft.Usage)
@@ -46,17 +53,17 @@ func init() {
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.InterestRate.Name)
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.FinancialGoal.Name)
 
-	assist.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+	assistCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		printHeader()
 		printDescriptor(cmd)
 	})
 }
 
 func main() {
-	assist.AddCommand(decompose)
-	decompose.AddCommand(decomposeSavings)
+	assistCmd.AddCommand(decomposeCmd)
+	decomposeCmd.AddCommand(decomposeSavings)
 
-	if err := assist.Execute(); err != nil {
+	if err := assistCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }

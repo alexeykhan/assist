@@ -23,7 +23,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -32,37 +31,56 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type template struct {
-	title, about string
-	examples     []string
+const (
+	appVersion   = "0.1.0"
+	appCopyright = "alexeykhan"
+	appLicense   = "MIT"
+	appViewWidth = 60
+
+	commandUsageExamples = "\n Примеры использования:\n"
+
+	tableColumnYear           = "Год"
+	tableColumnInvestments    = "Вложения"
+	tableColumnInterestIncome = "Проценты"
+	tableColumnTotalSavings   = "Накопления"
+
+	tableFooterTotal = "ИТОГО"
+)
+
+var logo = [...]string{
+	`  ______    ______    ______   ______   ______   ________ `,
+	` /      \  /      \  /      \ /      | /      \ /        |`,
+	`/$$$$$$  |/$$$$$$  |/$$$$$$  |$$$$$$/ /$$$$$$  |$$$$$$$$/ `,
+	`$$ |__$$ |$$ \__$$/ $$ \__$$/   $$ |  $$ \__$$/    $$ |   `,
+	`$$    $$ |$$      \ $$      \   $$ |  $$      \    $$ |   `,
+	`$$$$$$$$ | $$$$$$  | $$$$$$  |  $$ |   $$$$$$  |   $$ |   `,
+	`$$ |  $$ |/  \__$$ |/  \__$$ | _$$ |_ /  \__$$ |   $$ |   `,
+	`$$ |  $$ |$$    $$/ $$    $$/ / $$   |$$    $$/    $$ |   `,
+	`$$/   $$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/     $$/    `,
 }
 
-func (t template) normalize() string {
+func commandOverview(title, about string, examples []string) string {
 	boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
 	normalWhiteText := text.Colors{text.FgHiWhite}
 
-	var examples string
-	upperCaseTitle := text.FormatUpper.Apply(t.title)
+	var overview string
+	upperCaseTitle := text.FormatUpper.Apply(title)
 	formattedTitle := boldWhiteText.Sprintf(" %s", upperCaseTitle)
-	examples += formattedTitle + "\n\n"
+	overview += formattedTitle + "\n\n"
 
-	wrappedAbout := text.WrapSoft(t.about, appViewWidth-2)
+	wrappedAbout := text.WrapSoft(about, appViewWidth-2)
 	for _, line := range strings.Split(wrappedAbout, "\n") {
 		trimmedLine := strings.TrimSpace(line)
-		examples += normalWhiteText.Sprintf(" %s\n", trimmedLine)
+		overview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
 	}
 
-	examples += boldWhiteText.Sprint("\n Примеры использования:\n")
-	for _, line := range t.examples {
+	overview += boldWhiteText.Sprint(commandUsageExamples)
+	for _, line := range examples {
 		trimmedLine := strings.TrimSpace(line)
-		examples += normalWhiteText.Sprintf("  $ %s\n", trimmedLine)
+		overview += normalWhiteText.Sprintf("  $ %s\n", trimmedLine)
 	}
 
-	return examples
-}
-
-func example(title, about string, examples []string) string {
-	return template{title: title, about: about, examples: examples}.normalize()
+	return overview
 }
 
 func wrapUsage(usage string, max, indent int) string {
@@ -161,8 +179,8 @@ func printDescriptor(cmd *cobra.Command) {
 			line = fmt.Sprintf("      --%s", flag.Name)
 		}
 
-		varname, usage := unquoteUsage(flag)
-		line += " " + varname
+		varType, usage := unquoteUsage(flag)
+		line += " " + varType
 
 		line += "\x00"
 		if len(line) > maxLen {
@@ -176,18 +194,99 @@ func printDescriptor(cmd *cobra.Command) {
 	if len(flagLines) > 0 {
 		fmt.Println(text.Colors{text.Bold, text.FgHiWhite}.Sprint(" Параметры и опции команды:"))
 		for _, line := range flagLines {
-			sidx := strings.Index(line, "\x00")
-			spacing := strings.Repeat(" ", maxLen-sidx)
-			concatenated := line[:sidx] + spacing + " " + wrapUsage(line[sidx+1:], appViewWidth, maxLen+1)
+			sIdx := strings.Index(line, "\x00")
+			spacing := strings.Repeat(" ", maxLen-sIdx)
+			concatenated := line[:sIdx] + spacing + " " + wrapUsage(line[sIdx+1:], appViewWidth, maxLen+1)
 			fmt.Print(text.Colors{text.FgHiWhite}.Sprint(concatenated))
 		}
 	}
 	fmt.Println()
 }
 
-func getTableWriter() table.Writer {
+func getTableWriter(columns ...string) table.Writer {
+	var tableRow []interface{}
+	for _, col := range columns {
+		tableRow = append(tableRow, col)
+	}
+
+	yearColumnWidth := 6
+	moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 8) / 3
+
 	t := table.NewWriter()
-	t.SetOutputMirror(os.Stdout)
+	t.SetAllowedRowLength(appViewWidth)
+	t.AppendHeader(tableRow)
+	t.SetStyle(table.Style{
+		Name: "Assist",
+		Box: table.BoxStyle{
+			BottomLeft:       " ┗",
+			BottomRight:      "┛",
+			BottomSeparator:  "━┻",
+			Left:             " ┃",
+			LeftSeparator:    " ┣",
+			MiddleHorizontal: "━",
+			MiddleSeparator:  "━╋",
+			MiddleVertical:   " ┃",
+			PaddingLeft:      "",
+			PaddingRight:     "",
+			Right:            "┃",
+			RightSeparator:   "┫",
+			TopLeft:          " ┏",
+			TopRight:         "┓",
+			TopSeparator:     "━┳",
+		},
+		Color: table.ColorOptions{
+			Footer:       text.Colors{text.FgHiWhite},
+			Header:       text.Colors{text.FgHiWhite},
+			Row:          text.Colors{text.FgHiWhite},
+			RowAlternate: text.Colors{text.FgHiWhite},
+		},
+		Format: table.FormatOptions{
+			Footer: text.FormatUpper,
+			Header: text.FormatUpper,
+			Row:    text.FormatDefault,
+		},
+		Options: table.Options{
+			DrawBorder:      true,
+			SeparateColumns: true,
+			SeparateFooter:  true,
+			SeparateHeader:  true,
+			SeparateRows:    false,
+		},
+	})
+	t.SetColumnConfigs([]table.ColumnConfig{
+		{
+			Name:        tableColumnYear,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    yearColumnWidth,
+			WidthMax:    yearColumnWidth,
+		},
+		{
+			Name:        tableColumnInvestments,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    moneyColumnMaxWidth,
+			WidthMax:    moneyColumnMaxWidth,
+		},
+		{
+			Name:        tableColumnInterestIncome,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    moneyColumnMaxWidth,
+			WidthMax:    moneyColumnMaxWidth,
+		},
+		{
+			Name:        tableColumnTotalSavings,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    moneyColumnMaxWidth,
+			WidthMax:    moneyColumnMaxWidth,
+		},
+	})
 
 	return t
 }
