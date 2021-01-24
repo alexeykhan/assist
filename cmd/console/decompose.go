@@ -37,9 +37,9 @@ var decompose = &cobra.Command{
 			"при которой, выйдя на пенсию, можно будет тратить 100,000 руб в месяц на протяжении 25 лет без "+
 			"дополнительного дохода, потратив к концу срока все накопленные деньги.",
 		[]string{
-			"./assist decompose savings --help",
-			"./assist decompose expenses --help",
-			"./assist decompose --help",
+			"./bin/assist decompose savings --help",
+			"./bin/assist decompose expenses --help",
+			"./bin/assist decompose --help",
 		},
 	),
 }
