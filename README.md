@@ -34,6 +34,10 @@ $$/   $$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/     $$/
 условия для достижения вашей цели к конкретному сроку.
 Подход: от желаемого результата.
 
+<b>Например:</b>
+
+`./bin/assist decompose savings --goal 1234567.89 --years 10 --interest=6.5`
+
 ![Assist Decompose Savings](./.github/decompose_savings.png?raw=true)
 
 Используйте команду `calculate`, чтобы посмотреть, каких
