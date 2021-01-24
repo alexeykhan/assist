@@ -84,7 +84,7 @@ var decomposeSavings = &cobra.Command{
 	),
 	Run: func(cmd *cobra.Command, args []string) {
 		printHeader()
-		
+
 		yearsLeft := getUint8(cmd, decomposeSavingsFlags.YearsLeft.Name)
 		annualRate := getFloat32(cmd, decomposeSavingsFlags.InterestRate.Name)
 		financialGoal := getFloat32(cmd, decomposeSavingsFlags.FinancialGoal.Name)
@@ -126,7 +126,7 @@ var decomposeSavings = &cobra.Command{
 		var checkPersonal float32
 
 		yearColumnWidth := 6
-		moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 16) / 3
+		moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 8) / 3
 
 		t := getTableWriter()
 		t.SetAllowedRowLength(appViewWidth)
@@ -142,14 +142,14 @@ var decomposeSavings = &cobra.Command{
 				MiddleHorizontal: "━",
 				MiddleSeparator:  "━╋",
 				MiddleVertical:   " ┃",
-				PaddingLeft:      " ",
-				PaddingRight:     " ",
+				PaddingLeft:      "",
+				PaddingRight:     "",
 				Right:            "┃",
 				RightSeparator:   "┫",
 				TopLeft:          " ┏",
 				TopRight:         "┓",
 				TopSeparator:     "━┳",
-				UnfinishedRow:    " ~~~",
+				// UnfinishedRow:    " ~~~",
 			},
 			Color: table.ColorOptions{
 				Footer:       text.Colors{text.FgHiWhite},
@@ -242,9 +242,9 @@ var decomposeSavings = &cobra.Command{
 		t.Render()
 
 		fmt.Printf(
-			"\n> Ежемесячный взнос составит: %.2f\n"+
-				"> Сумма собственных вложений за период: %.2f\n"+
-				"> Сумма начисленных процентов за период: %.2f\n\n",
+			"\n > Ежемесячный взнос составит: %.2f\n"+
+				" > Сумма собственных вложений за период: %.2f\n"+
+				" > Сумма начисленных процентов за период: %.2f\n\n",
 			monthlyPayment, checkPersonal, checkInterest)
 	},
 }
