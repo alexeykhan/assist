@@ -58,9 +58,9 @@ var assist = &cobra.Command{
 			"Используйте команду `calculate`, чтобы посмотреть, каких результатов можно достигнуть "+
 			"за указанный период, если соблюдать конкретные условия. Подход: от текущей ситуации.",
 		[]string{
-			"./assist decompose --help",
-			"./assist calculate --help",
-			"./assist --help",
+			"./bin/assist decompose --help",
+			"./bin/assist calculate --help",
+			"./bin/assist --help",
 		},
 	),
 }
