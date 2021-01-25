@@ -90,16 +90,16 @@ $ ./bin/assist decompose --help
 <b>Пример использования:</b>
 
 ```
-$ ./bin/assist decompose retirement --expenses=150000.00 --years=25 --interest=6.5 --detailed
-$ ./bin/assist decompose retirement -e=150000.00 -y=25 -i=6.5 -d
+$ ./bin/assist decompose retirement --expenses=150000.00 --years=25 --interest=6.5 --detailed=M
+$ ./bin/assist decompose retirement -e=150000.00 -y=25 -i=6.5 -d=M
 $ ./bin/assist decompose retirement --help
 ```
 
 <b>Параметры и опции команды:</b>
 
 ```
--d, --detailed bool   Выводить детализированную декомпозицию  
-                      по месяцам
+-d, --detailed bool   Выводить детализированный ответ. M — по
+                      месяцам, Y — по годам.
 -e, --expenses float  Сумма ежемесячных расходов в течение    
                       пенсионного периода
 -h, --help bool       help for retirement
@@ -112,7 +112,7 @@ $ ./bin/assist decompose retirement --help
 <b>Пример выполнения команды:</b>
 
 ```
-$ ./bin/assist decompose retirement -e 150000 -y 25 -i 6.5
+$ ./bin/assist decompose retirement -e 150000 -y 25 -i 6.5 -d Y
 
  ДЕКОМПОЗИЦИЯ ПЕНСИИ
 
@@ -166,16 +166,16 @@ $ ./bin/assist decompose retirement -e 150000 -y 25 -i 6.5
 <b>Пример использования:</b>
 
 ```
-$ ./bin/assist decompose savings --goal=1234567.89 --years=10 --interest=6.5 --detailed
-$ ./bin/assist decompose savings -g=1234567.89 -y=10 -i=6.5 -d
+$ ./bin/assist decompose savings --goal=1234567.89 --years=10 --interest=6.5 --detailed=M
+$ ./bin/assist decompose savings -g=1234567.89 -y=10 -i=6.5 -d=M
 $ ./bin/assist decompose savings --help
 ```
 
 <b>Параметры и опции команды:</b>
 
 ```
--d, --detailed bool     Выводить детализированную декомпозицию  
-                        по месяцам
+-d, --detailed bool     Выводить детализированный ответ. M — по
+                        месяцам, Y — по годам.
 -g, --goal float32      Ваша финансовая цель, которую     
                         нужно достгнуть за заданный период
 -h, --help bool         Документация по команде
@@ -188,7 +188,7 @@ $ ./bin/assist decompose savings --help
 <b>Пример выполнения команды:</b>
 
 ```
-$ ./bin/assist decompose savings -g 1234567.89 -y 10 -i 6.5
+$ ./bin/assist decompose savings -g 1234567.89 -y 10 -i 6.5 -d Y
 
  ДЕКОМПОЗИЦИЯ НАКОПЛЕНИЯ СУММЫ
 
@@ -241,16 +241,16 @@ $ ./bin/assist calculate --help
 <b>Пример использования:</b>
 
 ```
-$ ./bin/assist calculate savings --payment=20000.00 --years=25 --interest=6.5 --detailed
-$ ./bin/assist calculate savings -p=20000.00 -y=25 -i=6.5 -d
+$ ./bin/assist calculate savings --payment=20000.00 --years=25 --interest=6.5 --detailed=M
+$ ./bin/assist calculate savings -p=20000.00 -y=25 -i=6.5 -d=M
 $ ./bin/assist calculate savings --help
 ```
 
 <b>Параметры и опции команды:</b>
 
 ```
--d, --detailed bool   Выводить детализированную декомпозицию  
-                      по месяцам
+-d, --detailed bool   Выводить детализированный ответ. M — по
+                      месяцам, Y — по годам.
 -h, --help bool       Документация по команде
 -i, --interest float  Доходность вашего инвестиционного       
                       портфеля в процентах годовых
@@ -263,7 +263,7 @@ $ ./bin/assist calculate savings --help
 <b>Пример выполнения команды:</b>
 
 ```
-$ ./bin/assist calculate savings -e 150000 -y 25 -i 6.5
+$ ./bin/assist calculate savings -e 150000 -y 25 -i 6.5 -d Y
 
  РАСЧЕТ БУДУЩИХ НАКОПЛЕНИЙ
 
