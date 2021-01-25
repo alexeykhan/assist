@@ -47,8 +47,8 @@ var decomposeRetirementConfig = struct {
 	results: "\n > Минимальная сумма накоплений составит: %.2f\n" +
 		" > Сумма начисленных процентов за период: %.2f\n\n",
 	examples: []string{
-		"./bin/assist decompose retirement --expenses=1234567.89 --years=25 --interest=6.5 --detailed",
-		"./bin/assist decompose retirement -e=1234567.89 -y=10 -i=6.5 -d",
+		"./bin/assist decompose retirement --expenses=150000 --years=25 --interest=6.5 --detailed",
+		"./bin/assist decompose retirement -e=150000 -y=25 -i=6.5 -d",
 		"./bin/assist decompose retirement --help",
 	},
 }
