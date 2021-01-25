@@ -34,7 +34,7 @@ var calculateCmd = &cobra.Command{
 			"будете ежемесячно откладывать по 10,000 рублей с доходностью портфеля 10% годовых и ежемесячной "+
 			"капитализацией процентов.",
 		[]string{
-			"./bin/assist calculate retirement --help",
+			"./bin/assist calculate inflation --help",
 			"./bin/assist calculate savings --help",
 			"./bin/assist calculate --help",
 		},

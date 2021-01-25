@@ -30,6 +30,7 @@ type (
 		DecomposeSavings(goal, interest float64, years uint8) (float64, error)
 		DecomposeRetirement(expenses, interest float64, years uint8) (float64, error)
 		CalculateSavings(payment, interest float64, years uint8) (float64, error)
+		CalculateInflation(current, inflation float64, years uint8) (float64, error)
 		Validator() Validator
 		View() View
 	}
@@ -116,6 +117,21 @@ func (a assist) CalculateSavings(payment, interest float64, years uint8) (saving
 	// равен payment*(1+periodRate), а знаменатель прогрессии - (1+periodRate).
 	savings = payment * (coefficient*finalCoefficient - coefficient) / periodRate
 
+	return
+}
+
+func (a assist) CalculateInflation(current, inflation float64, years uint8) (inflated float64, err error) {
+	if err = a.validator.HumanLifeYears(years); err != nil {
+		return inflated, err
+	}
+	if err = a.validator.PositiveFloat64(current); err != nil {
+		return inflated, fmt.Errorf("invalid current value: %w", err)
+	}
+	if err = a.validator.PositiveFloat64(inflation); err != nil {
+		return inflated, fmt.Errorf("invalid inflation: %w", err)
+	}
+
+	inflated = current * math.Pow(1 + inflation * 0.01, float64(years))
 	return
 }
 

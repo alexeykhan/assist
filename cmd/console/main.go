@@ -79,6 +79,15 @@ func init() {
 	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Interest.Name)
 	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Payment.Name)
 
+	calculateInflation.Flags().Float64P(calculateInflationFlags.Current.Name, calculateInflationFlags.Current.Shorthand, 0, calculateInflationFlags.Current.Usage)
+	calculateInflation.Flags().Uint8P(calculateInflationFlags.Years.Name, calculateInflationFlags.Years.Shorthand, 0, calculateInflationFlags.Years.Usage)
+	calculateInflation.Flags().Float64P(calculateInflationFlags.Inflation.Name, calculateInflationFlags.Inflation.Shorthand, 0, calculateInflationFlags.Inflation.Usage)
+	calculateInflation.Flags().BoolP(calculateInflationFlags.Detailed.Name, calculateInflationFlags.Detailed.Shorthand, false, calculateInflationFlags.Detailed.Usage)
+	calculateInflation.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
+	_ = calculateInflation.MarkFlagRequired(calculateInflationFlags.Current.Name)
+	_ = calculateInflation.MarkFlagRequired(calculateInflationFlags.Years.Name)
+	_ = calculateInflation.MarkFlagRequired(calculateInflationFlags.Inflation.Name)
+
 	assistCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		printHeader()
 		printDescriptor(cmd)
@@ -88,6 +97,7 @@ func init() {
 func main() {
 	assistCmd.AddCommand(calculateCmd)
 	calculateCmd.AddCommand(calculateSavings)
+	calculateCmd.AddCommand(calculateInflation)
 
 	assistCmd.AddCommand(decomposeCmd)
 	decomposeCmd.AddCommand(decomposeSavings)
