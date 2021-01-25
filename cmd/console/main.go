@@ -45,7 +45,7 @@ func init() {
 
 	detailedFlag = pflag.Flag{
 		Name: "detailed", Shorthand: "d",
-		Usage: "Выводить детализированную декомпозицию по месяцам",
+		Usage: "Выводить детализированный ответ. M — по месяцам, Y — по годам.",
 	}
 
 	assistCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
@@ -55,7 +55,7 @@ func init() {
 	decomposeSavings.Flags().Float64P(decomposeSavingsFlags.Goal.Name, decomposeSavingsFlags.Goal.Shorthand, 0, decomposeSavingsFlags.Goal.Usage)
 	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.Years.Name, decomposeSavingsFlags.Years.Shorthand, 0, decomposeSavingsFlags.Years.Usage)
 	decomposeSavings.Flags().Float64P(decomposeSavingsFlags.Interest.Name, decomposeSavingsFlags.Interest.Shorthand, 0, decomposeSavingsFlags.Interest.Usage)
-	decomposeSavings.Flags().BoolP(detailedFlag.Name, detailedFlag.Shorthand, false, detailedFlag.Usage)
+	decomposeSavings.Flags().StringP(detailedFlag.Name, detailedFlag.Shorthand, detailedFlag.DefValue, detailedFlag.Usage)
 	decomposeSavings.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.Years.Name)
 	_ = decomposeSavings.MarkFlagRequired(decomposeSavingsFlags.Interest.Name)
@@ -64,7 +64,8 @@ func init() {
 	decomposeRetirement.Flags().Float64P(decomposeRetirementFlags.Expenses.Name, decomposeRetirementFlags.Expenses.Shorthand, 0, decomposeRetirementFlags.Expenses.Usage)
 	decomposeRetirement.Flags().Uint8P(decomposeRetirementFlags.Years.Name, decomposeRetirementFlags.Years.Shorthand, 0, decomposeRetirementFlags.Years.Usage)
 	decomposeRetirement.Flags().Float64P(decomposeRetirementFlags.Interest.Name, decomposeRetirementFlags.Interest.Shorthand, 0, decomposeRetirementFlags.Interest.Usage)
-	decomposeRetirement.Flags().BoolP(detailedFlag.Name, detailedFlag.Shorthand, false, detailedFlag.Usage)
+	decomposeRetirement.Flags().StringP(detailedFlag.Name, detailedFlag.Shorthand, detailedFlag.DefValue, detailedFlag.Usage)
+	decomposeRetirement.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Years.Name)
 	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Interest.Name)
 	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Expenses.Name)
@@ -72,7 +73,7 @@ func init() {
 	calculateSavings.Flags().Float64P(calculateSavingsFlags.Payment.Name, calculateSavingsFlags.Payment.Shorthand, 0, calculateSavingsFlags.Payment.Usage)
 	calculateSavings.Flags().Uint8P(calculateSavingsFlags.Years.Name, calculateSavingsFlags.Years.Shorthand, 0, calculateSavingsFlags.Years.Usage)
 	calculateSavings.Flags().Float64P(calculateSavingsFlags.Interest.Name, calculateSavingsFlags.Interest.Shorthand, 0, calculateSavingsFlags.Interest.Usage)
-	calculateSavings.Flags().BoolP(detailedFlag.Name, detailedFlag.Shorthand, false, detailedFlag.Usage)
+	calculateSavings.Flags().StringP(detailedFlag.Name, detailedFlag.Shorthand, detailedFlag.DefValue, detailedFlag.Usage)
 	calculateSavings.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Years.Name)
 	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Interest.Name)

@@ -37,11 +37,15 @@ const (
 	appLicense   = "MIT"
 	appViewWidth = 64
 
-	commandOptions = " Параметры и опции команды:"
+	commandOptionEmpty           = ""
+	commandOptionDetailedYearly  = "Y"
+	commandOptionDetailedMonthly = "M"
+
+	commandOptions       = " Параметры и опции команды:"
 	commandUsageExamples = "\n Примеры использования:\n"
 
 	tableColumnYear           = "Год"
-	tableColumnExpenses		  = "Расходы"
+	tableColumnExpenses       = "Расходы"
 	tableColumnInvestments    = "Вложения"
 	tableColumnInterestIncome = "Проценты"
 	tableColumnTotalSavings   = "Накопления"
@@ -298,6 +302,16 @@ func getTableWriter(columns ...string) table.Writer {
 	return t
 }
 
+func validateDetailedOption(value string) error {
+	if value != commandOptionEmpty &&
+		value != commandOptionDetailedYearly &&
+		value != commandOptionDetailedMonthly {
+		return fmt.Errorf("invalid argument value: detailed = %q; available options: %q, %q",
+			value, commandOptionDetailedYearly, commandOptionDetailedMonthly)
+	}
+	return nil
+}
+
 func getFloat64(cmd *cobra.Command, name string) float64 {
 	value, err := cmd.Flags().GetFloat64(name)
 	if err != nil {
@@ -309,6 +323,15 @@ func getFloat64(cmd *cobra.Command, name string) float64 {
 
 func getUint8(cmd *cobra.Command, name string) uint8 {
 	value, err := cmd.Flags().GetUint8(name)
+	if err != nil {
+		_ = cmd.Help()
+		log.Fatal(err)
+	}
+	return value
+}
+
+func getString(cmd *cobra.Command, name string) string {
+	value, err := cmd.Flags().GetString(name)
 	if err != nil {
 		_ = cmd.Help()
 		log.Fatal(err)

@@ -35,6 +35,7 @@ var calculateSavingsConfig = struct {
 	about    string
 	overview string
 	results  string
+	detailed string
 	examples []string
 }{
 	title: "Расчет будущих накоплений",
@@ -44,12 +45,13 @@ var calculateSavingsConfig = struct {
 	overview: "Задача: рассчитать сумму, которую можно накопить с учетом сложного процента, " +
 		"если на протяжении следующих %s ежемесячно инвестировать %.2f рублей под %.2f%% " +
 		"годовых с ежемесячной капитализацией процентов.",
-	results: "\n > Накопленная сумма составит: %.2f\n" +
+	results: " > Накопленная сумма составит: %.2f\n\n",
+	detailed: "\n > Накопленная сумма составит: %.2f\n" +
 		" > Сумма собственных вложений за период: %.2f\n" +
 		" > Сумма начисленных процентов за период: %.2f\n\n",
 	examples: []string{
-		"./bin/assist calculate savings --goal=10000 --years=10 --interest=6.5 --detailed",
-		"./bin/assist calculate savings -p=10000 -y=10 -i=6.5 -d",
+		"./bin/assist calculate savings --goal=10000 --years=10 --interest=6.5 --detailed=M",
+		"./bin/assist calculate savings -p=10000 -y=10 -i=6.5 -d=M",
 		"./bin/assist calculate savings --help",
 	},
 }
@@ -86,12 +88,11 @@ var calculateSavings = &cobra.Command{
 		years := getUint8(cmd, calculateSavingsFlags.Years.Name)
 		interest := getFloat64(cmd, calculateSavingsFlags.Interest.Name)
 		payment := getFloat64(cmd, calculateSavingsFlags.Payment.Name)
-		detailed := getBool(cmd, detailedFlag.Name)
+		detailed := getString(cmd, detailedFlag.Name)
 
-		// var savings float64
-		// if savings, err = core.CalculateSavings(payment, interest, years); err != nil {
-		// 	return err
-		// }
+		if err = validateDetailedOption(detailed); err != nil {
+			return err
+		}
 
 		view := core.View()
 
@@ -111,6 +112,17 @@ var calculateSavings = &cobra.Command{
 			taskOverview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
 		}
 
+		if detailed == commandOptionEmpty {
+			var savings float64
+			if savings, err = core.CalculateSavings(payment, interest, years); err != nil {
+				return err
+			}
+
+			fmt.Println(taskOverview)
+			fmt.Printf(calculateSavingsConfig.results, savings)
+			return
+		}
+
 		t := getTableWriter(
 			tableColumnYear,
 			tableColumnInvestments,
@@ -126,6 +138,7 @@ var calculateSavings = &cobra.Command{
 
 		periods := 12 * int(years)
 		periodRate := interest * 0.01 / 12
+		detailedMonthly := detailed == commandOptionDetailedMonthly
 		for i := 0; i <= periods; i++ {
 			interest := totalSavings * periodRate
 			interestIncome += interest
@@ -140,13 +153,13 @@ var calculateSavings = &cobra.Command{
 			next = i + 1
 			index = next
 
-			if !detailed {
+			if !detailedMonthly {
 				index = next / 12
 			}
 			if i == periods {
 				index = tableFooterTotal
 			}
-			if detailed || (next >= 12 && next%12 == 0 || i == periods) {
+			if detailedMonthly || (next >= 12 && next%12 == 0 || i == periods) {
 				t.AppendRow(table.Row{
 					index,
 					fmt.Sprintf("%.2f", personalInvestments),
@@ -158,8 +171,7 @@ var calculateSavings = &cobra.Command{
 
 		fmt.Println(taskOverview)
 		fmt.Println(t.Render())
-		fmt.Printf(calculateSavingsConfig.results, totalSavings, personalInvestments, interestIncome)
-
-		return nil
+		fmt.Printf(calculateSavingsConfig.detailed, totalSavings, personalInvestments, interestIncome)
+		return
 	},
 }

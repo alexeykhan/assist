@@ -35,6 +35,7 @@ var decomposeRetirementConfig = struct {
 	about    string
 	overview string
 	results  string
+	detailed string
 	examples []string
 }{
 	title: "Декомпозиция пенсии",
@@ -44,11 +45,12 @@ var decomposeRetirementConfig = struct {
 	overview: "Задача: рассчитать сумму, которую необходимо накопить, чтобы при доходности " +
 		"портфеля %.2f%% годовых можно было на протяжении %s тратить %2.f рублей в месяц " +
 		"без дополнительного дохода, потратив к концу срока все сбережения.",
-	results: "\n > Минимальная сумма накоплений составит: %.2f\n" +
+	results: " > Минимальная сумма накоплений составит: %.2f\n\n",
+	detailed: "\n > Минимальная сумма накоплений составит: %.2f\n" +
 		" > Сумма начисленных процентов за период: %.2f\n\n",
 	examples: []string{
-		"./bin/assist decompose retirement --expenses=150000 --years=25 --interest=6.5 --detailed",
-		"./bin/assist decompose retirement -e=150000 -y=25 -i=6.5 -d",
+		"./bin/assist decompose retirement --expenses=150000 --years=25 --interest=6.5 --detailed=M",
+		"./bin/assist decompose retirement -e=150000 -y=25 -i=6.5 -d=M",
 		"./bin/assist decompose retirement --help",
 	},
 }
@@ -85,13 +87,11 @@ var decomposeRetirement = &cobra.Command{
 		years := getUint8(cmd, decomposeRetirementFlags.Years.Name)
 		interest := getFloat64(cmd, decomposeRetirementFlags.Interest.Name)
 		expenses := getFloat64(cmd, decomposeRetirementFlags.Expenses.Name)
-		detailed := getBool(cmd, detailedFlag.Name)
+		detailed := getString(cmd, detailedFlag.Name)
 
-		var retirement float64
-		if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {
+		if err = validateDetailedOption(detailed); err != nil {
 			return err
 		}
-		// retirement = 74452430.0
 
 		view := core.View()
 
@@ -111,6 +111,17 @@ var decomposeRetirement = &cobra.Command{
 			taskOverview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
 		}
 
+		var retirement float64
+		if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {
+			return err
+		}
+
+		if detailed == commandOptionEmpty {
+			fmt.Println(taskOverview)
+			fmt.Printf(decomposeRetirementConfig.results, retirement)
+			return
+		}
+
 		t := getTableWriter(
 			tableColumnYear,
 			tableColumnInterestIncome,
@@ -127,6 +138,7 @@ var decomposeRetirement = &cobra.Command{
 		savingsLeft := retirement
 		periods := 12 * int(years)
 		periodRate := interest * 0.01 / 12
+		detailedMonthly := detailed == commandOptionDetailedMonthly
 		for i := 0; i < periods; i++ {
 			interest := (savingsLeft - expenses) * periodRate
 			if interest < 0 {
@@ -139,7 +151,7 @@ var decomposeRetirement = &cobra.Command{
 			next = i + 1
 			index = next
 
-			if !detailed {
+			if !detailedMonthly {
 				index = next / 12
 			}
 
@@ -147,7 +159,7 @@ var decomposeRetirement = &cobra.Command{
 				savingsLeft = 0
 			}
 
-			if detailed || (next >= 12 && next%12 == 0 || i == periods) {
+			if detailedMonthly || (next >= 12 && next%12 == 0 || i == periods) {
 				t.AppendRow(table.Row{
 					index,
 					fmt.Sprintf("%.2f", interestIncome),
@@ -169,7 +181,7 @@ var decomposeRetirement = &cobra.Command{
 
 		fmt.Println(taskOverview)
 		fmt.Println(t.Render())
-		fmt.Printf(decomposeRetirementConfig.results, retirement, interestIncome)
+		fmt.Printf(decomposeRetirementConfig.detailed, retirement, interestIncome)
 
 		return nil
 	},
