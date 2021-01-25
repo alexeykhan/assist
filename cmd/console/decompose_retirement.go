@@ -83,11 +83,11 @@ var decomposeRetirement = &cobra.Command{
 		printHeader()
 
 		years := getUint8(cmd, decomposeRetirementFlags.Years.Name)
-		interest := getFloat32(cmd, decomposeRetirementFlags.Interest.Name)
-		expenses := getFloat32(cmd, decomposeRetirementFlags.Expenses.Name)
+		interest := getFloat64(cmd, decomposeRetirementFlags.Interest.Name)
+		expenses := getFloat64(cmd, decomposeRetirementFlags.Expenses.Name)
 		detailed := getBool(cmd, detailedFlag.Name)
 
-		var retirement float32
+		var retirement float64
 		// if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {
 		// 	return err
 		// }
@@ -120,8 +120,8 @@ var decomposeRetirement = &cobra.Command{
 		var (
 			next           int
 			index          interface{}
-			interestIncome float32
-			totalExpenses  float32
+			interestIncome float64
+			totalExpenses  float64
 		)
 
 		savingsLeft := retirement
@@ -129,6 +129,9 @@ var decomposeRetirement = &cobra.Command{
 		periodRate := interest * 0.01 / 12
 		for i := 0; i < periods; i++ {
 			interest := (savingsLeft - expenses) * periodRate
+			if interest < 0 {
+				interest = 0
+			}
 			interestIncome += interest
 			totalExpenses += expenses
 			savingsLeft += interest - expenses
@@ -143,8 +146,8 @@ var decomposeRetirement = &cobra.Command{
 			if detailed || (next >= 12 && next%12 == 0 || i == periods) {
 				t.AppendRow(table.Row{
 					index,
-					fmt.Sprintf("+%.2f", interestIncome),
-					fmt.Sprintf("-%.2f", totalExpenses),
+					fmt.Sprintf("%.2f", interestIncome),
+					fmt.Sprintf("%.2f", totalExpenses),
 					fmt.Sprintf("%.2f", savingsLeft),
 				})
 			}
@@ -153,8 +156,8 @@ var decomposeRetirement = &cobra.Command{
 				t.AppendSeparator()
 				t.AppendRow(table.Row{
 					tableFooterTotal,
-					fmt.Sprintf("+%.2f", interestIncome),
-					fmt.Sprintf("-%.2f", totalExpenses),
+					fmt.Sprintf("%.2f", interestIncome),
+					fmt.Sprintf("%.2f", totalExpenses),
 					fmt.Sprintf("%.2f", savingsLeft),
 				})
 			}
