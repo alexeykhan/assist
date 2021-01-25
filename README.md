@@ -48,13 +48,13 @@ $ ./bin/assist decompose --help
 
 Используйте команду `decompose retirement`, чтобы узнать минимальную сумму накоплений
 с ежегодной доходностью R%, которая позволит вам при выходе на пенсию на протяжении
-заданного периода в годах ежемесячно тратить X руб в месяц.
+следующих N лет ежемесячно тратить X руб в месяц.
 
 <b>Пример использования:</b>
 
 ```
-$ ./bin/assist decompose retirement --expenses=150000.00 --years=25 --interest=6.5
-$ ./bin/assist decompose retirement -g=150000.00 -y=25 -i=6.5
+$ ./bin/assist decompose retirement --expenses=150000.00 --years=25 --interest=6.5 --detailed
+$ ./bin/assist decompose retirement -e=150000.00 -y=25 -i=6.5 -d
 $ ./bin/assist decompose retirement --help
 ```
 
@@ -129,14 +129,16 @@ $ ./bin/assist decompose retirement -e 150000 -y 25 -i 6.5
 <b>Пример использования:</b>
 
 ```
-$ ./bin/assist decompose savings --goal=1234567.89 --years=10 --interest=6.5
-$ ./bin/assist decompose savings -g=1234567.89 -y=10 -i=6.5
+$ ./bin/assist decompose savings --goal=1234567.89 --years=10 --interest=6.5 --detailed
+$ ./bin/assist decompose savings -g=1234567.89 -y=10 -i=6.5 -d
 $ ./bin/assist decompose savings --help
 ```
 
 <b>Параметры и опции команды:</b>
 
 ```
+-d, --detailed bool     Выводить детализированную декомпозицию  
+                        по месяцам
 -g, --goal float32      Ваша финансовая цель, которую     
                         нужно достгнуть за заданный период
 -h, --help bool         Документация по команде
