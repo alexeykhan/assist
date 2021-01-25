@@ -221,4 +221,4 @@ $ ./bin/assist decompose savings -g 1234567.89 -y 10 -i 6.5
 
 ## Локальная сборка
 
-`make linter && make assist && ./bin/assistCmd -h`
+`make linter && make assist && ./bin/assist -h`
