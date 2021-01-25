@@ -227,7 +227,7 @@ $ ./bin/assist decompose savings -g 1234567.89 -y 10 -i 6.5 -d Y
 <b>Доступные команды:</b>
 
 ```
-$ ./bin/assist calculate retirement --help
+$ ./bin/assist calculate inflation --help
 $ ./bin/assist calculate savings --help
 $ ./bin/assist calculate --help
 ```
