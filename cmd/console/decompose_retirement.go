@@ -122,8 +122,14 @@ var decomposeRetirement = &cobra.Command{
 			return
 		}
 
+		firstColumn := tableColumnYear
+		detailedMonthly := detailed == commandOptionDetailedMonthly
+		if detailedMonthly {
+			firstColumn = tableColumnMonth
+		}
+
 		t := getTableWriter(
-			tableColumnYear,
+			firstColumn,
 			tableColumnInterestIncome,
 			tableColumnExpenses,
 			tableColumnTotalSavings)
@@ -138,7 +144,6 @@ var decomposeRetirement = &cobra.Command{
 		savingsLeft := retirement
 		periods := 12 * int(years)
 		periodRate := interest * 0.01 / 12
-		detailedMonthly := detailed == commandOptionDetailedMonthly
 		for i := 0; i < periods; i++ {
 			interest := (savingsLeft - expenses) * periodRate
 			if interest < 0 {

@@ -45,6 +45,7 @@ const (
 	commandUsageExamples = "\n Примеры использования:\n"
 
 	tableColumnYear           = "Год"
+	tableColumnMonth          = "Месяц"
 	tableColumnExpenses       = "Расходы"
 	tableColumnInvestments    = "Вложения"
 	tableColumnInterestIncome = "Проценты"
@@ -259,6 +260,14 @@ func getTableWriter(columns ...string) table.Writer {
 	t.SetColumnConfigs([]table.ColumnConfig{
 		{
 			Name:        tableColumnYear,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    yearColumnWidth,
+			WidthMax:    yearColumnWidth,
+		},
+		{
+			Name:        tableColumnMonth,
 			Align:       text.AlignCenter,
 			AlignFooter: text.AlignLeft,
 			AlignHeader: text.AlignCenter,
