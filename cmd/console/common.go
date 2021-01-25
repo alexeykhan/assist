@@ -44,9 +44,13 @@ const (
 	commandOptions       = " Параметры и опции команды:"
 	commandUsageExamples = "\n Примеры использования:\n"
 
-	tableColumnYear           = "Год"
-	tableColumnMonth          = "Месяц"
-	tableColumnExpenses       = "Расходы"
+	tableColumnYear      = "Год"
+	tableColumnMonth     = "Месяц"
+	tableColumnExpenses  = "Расходы"
+
+	tableColumnInflationInitial    = "Исходная ценность"
+	tableColumnInflationEquivalent = "Эквивалент ценности"
+
 	tableColumnInvestments    = "Вложения"
 	tableColumnInterestIncome = "Проценты"
 	tableColumnTotalSavings   = "Накопления"
@@ -215,6 +219,7 @@ func getTableWriter(columns ...string) table.Writer {
 
 	yearColumnWidth := 6
 	moneyColumnMaxWidth := (appViewWidth - yearColumnWidth - 17) / 3
+	inflationColumnMaxWidth := (appViewWidth - yearColumnWidth - 14) / 2
 
 	t := table.NewWriter()
 	t.SetAllowedRowLength(appViewWidth)
@@ -305,6 +310,22 @@ func getTableWriter(columns ...string) table.Writer {
 			AlignHeader: text.AlignCenter,
 			WidthMin:    moneyColumnMaxWidth,
 			WidthMax:    moneyColumnMaxWidth,
+		},
+		{
+			Name:        tableColumnInflationInitial,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    inflationColumnMaxWidth,
+			WidthMax:    inflationColumnMaxWidth,
+		},
+		{
+			Name:        tableColumnInflationEquivalent,
+			Align:       text.AlignCenter,
+			AlignFooter: text.AlignLeft,
+			AlignHeader: text.AlignCenter,
+			WidthMin:    inflationColumnMaxWidth,
+			WidthMax:    inflationColumnMaxWidth,
 		},
 	})
 
