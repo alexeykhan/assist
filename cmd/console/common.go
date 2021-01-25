@@ -321,6 +321,23 @@ func validateDetailedOption(value string) error {
 	return nil
 }
 
+func getTaskOverview(title, overview string) string {
+	boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
+	normalWhiteText := text.Colors{text.FgHiWhite}
+
+	upperCaseTitle := text.FormatUpper.Apply(title)
+	formattedTitle := boldWhiteText.Sprintf(" %s", upperCaseTitle)
+	wrappedTask := text.WrapSoft(overview, appViewWidth-2)
+	taskOverview := formattedTitle + "\n\n"
+
+	for _, line := range strings.Split(wrappedTask, "\n") {
+		trimmedLine := strings.TrimSpace(line)
+		taskOverview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
+	}
+
+	return taskOverview
+}
+
 func getFloat64(cmd *cobra.Command, name string) float64 {
 	value, err := cmd.Flags().GetFloat64(name)
 	if err != nil {

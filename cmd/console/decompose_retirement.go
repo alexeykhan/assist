@@ -22,10 +22,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -93,23 +91,11 @@ var decomposeRetirement = &cobra.Command{
 			return err
 		}
 
-		view := core.View()
+		overview := fmt.Sprintf(
+			calculateSavingsConfig.overview,
+			interest, core.View().YearsDuration(years), expenses)
 
-		boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
-		normalWhiteText := text.Colors{text.FgHiWhite}
-
-		upperCaseTitle := text.FormatUpper.Apply(decomposeRetirementConfig.title)
-		formattedTitle := boldWhiteText.Sprintf(" %s", upperCaseTitle)
-
-		yearsInfo := view.YearsDuration(years)
-		filledTask := fmt.Sprintf(decomposeRetirementConfig.overview, interest, yearsInfo, expenses)
-		wrappedTask := text.WrapSoft(filledTask, appViewWidth-2)
-
-		taskOverview := formattedTitle + "\n\n"
-		for _, line := range strings.Split(wrappedTask, "\n") {
-			trimmedLine := strings.TrimSpace(line)
-			taskOverview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
-		}
+		taskOverview := getTaskOverview(decomposeRetirementConfig.title, overview)
 
 		var retirement float64
 		if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {

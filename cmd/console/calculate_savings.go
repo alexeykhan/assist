@@ -22,10 +22,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -94,23 +92,12 @@ var calculateSavings = &cobra.Command{
 			return err
 		}
 
-		view := core.View()
+		overview := fmt.Sprintf(
+			calculateSavingsConfig.overview,
+			core.View().YearsDuration(years),
+			payment, interest)
 
-		boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
-		normalWhiteText := text.Colors{text.FgHiWhite}
-
-		upperCaseTitle := text.FormatUpper.Apply(calculateSavingsConfig.title)
-		formattedTitle := boldWhiteText.Sprintf(" %s", upperCaseTitle)
-
-		yearsInfo := view.YearsDuration(years)
-		filledTask := fmt.Sprintf(calculateSavingsConfig.overview, yearsInfo, payment, interest)
-		wrappedTask := text.WrapSoft(filledTask, appViewWidth-2)
-
-		taskOverview := formattedTitle + "\n\n"
-		for _, line := range strings.Split(wrappedTask, "\n") {
-			trimmedLine := strings.TrimSpace(line)
-			taskOverview += normalWhiteText.Sprintf(" %s\n", trimmedLine)
-		}
+		taskOverview := getTaskOverview(calculateSavingsConfig.title, overview)
 
 		if detailed == commandOptionEmpty {
 			var savings float64
