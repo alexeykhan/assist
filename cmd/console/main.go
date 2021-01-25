@@ -50,6 +50,7 @@ func init() {
 
 	assistCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 	decomposeCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
+	calculateCmd.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
 
 	decomposeSavings.Flags().Float64P(decomposeSavingsFlags.Goal.Name, decomposeSavingsFlags.Goal.Shorthand, 0, decomposeSavingsFlags.Goal.Usage)
 	decomposeSavings.Flags().Uint8P(decomposeSavingsFlags.Years.Name, decomposeSavingsFlags.Years.Shorthand, 0, decomposeSavingsFlags.Years.Usage)
@@ -68,6 +69,15 @@ func init() {
 	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Interest.Name)
 	_ = decomposeRetirement.MarkFlagRequired(decomposeRetirementFlags.Expenses.Name)
 
+	calculateSavings.Flags().Float64P(calculateSavingsFlags.Payment.Name, calculateSavingsFlags.Payment.Shorthand, 0, calculateSavingsFlags.Payment.Usage)
+	calculateSavings.Flags().Uint8P(calculateSavingsFlags.Years.Name, calculateSavingsFlags.Years.Shorthand, 0, calculateSavingsFlags.Years.Usage)
+	calculateSavings.Flags().Float64P(calculateSavingsFlags.Interest.Name, calculateSavingsFlags.Interest.Shorthand, 0, calculateSavingsFlags.Interest.Usage)
+	calculateSavings.Flags().BoolP(detailedFlag.Name, detailedFlag.Shorthand, false, detailedFlag.Usage)
+	calculateSavings.Flags().BoolP(helpFlag.Name, helpFlag.Shorthand, false, helpFlag.Usage)
+	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Years.Name)
+	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Interest.Name)
+	_ = calculateSavings.MarkFlagRequired(calculateSavingsFlags.Payment.Name)
+
 	assistCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		printHeader()
 		printDescriptor(cmd)
@@ -75,6 +85,9 @@ func init() {
 }
 
 func main() {
+	assistCmd.AddCommand(calculateCmd)
+	calculateCmd.AddCommand(calculateSavings)
+
 	assistCmd.AddCommand(decomposeCmd)
 	decomposeCmd.AddCommand(decomposeSavings)
 	decomposeCmd.AddCommand(decomposeRetirement)
