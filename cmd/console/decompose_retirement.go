@@ -88,10 +88,10 @@ var decomposeRetirement = &cobra.Command{
 		detailed := getBool(cmd, detailedFlag.Name)
 
 		var retirement float64
-		// if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {
-		// 	return err
-		// }
-		retirement = 74452430.0
+		if retirement, err = core.DecomposeRetirement(expenses, interest, years); err != nil {
+			return err
+		}
+		// retirement = 74452430.0
 
 		view := core.View()
 
@@ -141,6 +141,10 @@ var decomposeRetirement = &cobra.Command{
 
 			if !detailed {
 				index = next / 12
+			}
+
+			if savingsLeft < 0 {
+				savingsLeft = 0
 			}
 
 			if detailed || (next >= 12 && next%12 == 0 || i == periods) {

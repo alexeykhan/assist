@@ -22,6 +22,7 @@ package assist
 
 import (
 	"fmt"
+	"math"
 )
 
 type (
@@ -84,22 +85,9 @@ func (a assist) DecomposeRetirement(expenses, interest float64, years uint8) (re
 		return retirement, fmt.Errorf("invalid expenses: %w", err)
 	}
 
-	// pp := 123456
-	// ii := (math.Pow(float64(interest), float64(12*years - 1)) -  1)/(interest - 1)
-
-	periodRate := interest * 0.01 / 12
-	coefficient := 1 + periodRate
-
-	finalCoefficient := coefficient
-	for i := 1; i < 12*int(years); i++ {
-		finalCoefficient *= coefficient
-	}
-
-	// Формула сложных процентов, начисляемых несколько раз в течение года,
-	// выходит из суммы геометрической прогрессии, в которой первый член
-	// равен payment*(1+periodRate), а знаменатель прогрессии - (1+periodRate).
-	retirement = (expenses * periodRate) / (coefficient*finalCoefficient - coefficient)
-
+	R := interest * 0.01 / 12
+	RPlusOnePow := math.Pow(R + 1, 12 * float64(years) - 1)
+	retirement = expenses * (RPlusOnePow*(R+1) - 1)/(RPlusOnePow*R)
 	return
 }
 
