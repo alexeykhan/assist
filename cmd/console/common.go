@@ -298,8 +298,8 @@ func getTableWriter(columns ...string) table.Writer {
 	return t
 }
 
-func getFloat32(cmd *cobra.Command, name string) float32 {
-	value, err := cmd.Flags().GetFloat32(name)
+func getFloat64(cmd *cobra.Command, name string) float64 {
+	value, err := cmd.Flags().GetFloat64(name)
 	if err != nil {
 		_ = cmd.Help()
 		log.Fatal(err)

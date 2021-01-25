@@ -26,8 +26,8 @@ import (
 
 type (
 	Assist interface {
-		DecomposeSavings(goal, interest float32, years uint8) (float32, error)
-		DecomposeRetirement(expenses, interest float32, years uint8) (float32, error)
+		DecomposeSavings(goal, interest float64, years uint8) (float64, error)
+		DecomposeRetirement(expenses, interest float64, years uint8) (float64, error)
 		Validator() Validator
 		View() View
 	}
@@ -46,14 +46,14 @@ func New() Assist {
 	}
 }
 
-func (a assist) DecomposeSavings(goal, interest float32, years uint8) (payment float32, err error) {
+func (a assist) DecomposeSavings(goal, interest float64, years uint8) (payment float64, err error) {
 	if err = a.validator.HumanLifeYears(years); err != nil {
 		return payment, err
 	}
-	if err = a.validator.PositiveFloat32(interest); err != nil {
+	if err = a.validator.PositiveFloat64(interest); err != nil {
 		return payment, fmt.Errorf("invalid interest rate: %w", err)
 	}
-	if err = a.validator.PositiveFloat32(goal); err != nil {
+	if err = a.validator.PositiveFloat64(goal); err != nil {
 		return payment, fmt.Errorf("invalid financial goal: %w", err)
 	}
 
@@ -73,16 +73,19 @@ func (a assist) DecomposeSavings(goal, interest float32, years uint8) (payment f
 	return
 }
 
-func (a assist) DecomposeRetirement(expenses, interest float32, years uint8) (retirement float32, err error) {
+func (a assist) DecomposeRetirement(expenses, interest float64, years uint8) (retirement float64, err error) {
 	if err = a.validator.HumanLifeYears(years); err != nil {
 		return retirement, err
 	}
-	if err = a.validator.PositiveFloat32(interest); err != nil {
+	if err = a.validator.PositiveFloat64(interest); err != nil {
 		return retirement, fmt.Errorf("invalid interest rate: %w", err)
 	}
-	if err = a.validator.PositiveFloat32(expenses); err != nil {
+	if err = a.validator.PositiveFloat64(expenses); err != nil {
 		return retirement, fmt.Errorf("invalid expenses: %w", err)
 	}
+
+	// pp := 123456
+	// ii := (math.Pow(float64(interest), float64(12*years - 1)) -  1)/(interest - 1)
 
 	periodRate := interest * 0.01 / 12
 	coefficient := 1 + periodRate

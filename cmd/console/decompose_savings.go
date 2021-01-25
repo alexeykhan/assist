@@ -83,12 +83,12 @@ var decomposeSavings = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		printHeader()
 
-		goal := getFloat32(cmd, decomposeSavingsFlags.Goal.Name)
+		goal := getFloat64(cmd, decomposeSavingsFlags.Goal.Name)
 		years := getUint8(cmd, decomposeSavingsFlags.Years.Name)
-		interest := getFloat32(cmd, decomposeSavingsFlags.Interest.Name)
+		interest := getFloat64(cmd, decomposeSavingsFlags.Interest.Name)
 		detailed := getBool(cmd, detailedFlag.Name)
 
-		var payment float32
+		var payment float64
 		if payment, err = core.DecomposeSavings(goal, interest, years); err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ var decomposeSavings = &cobra.Command{
 			next  int
 			index interface{}
 
-			totalSavings, interestIncome, personalInvestments float32
+			totalSavings, interestIncome, personalInvestments float64
 		)
 
 		periods := 12 * int(years)
@@ -142,11 +142,10 @@ var decomposeSavings = &cobra.Command{
 
 			if !detailed {
 				index = next / 12
-				if i == periods {
-					index = tableFooterTotal
-				}
 			}
-
+			if i == periods {
+				index = tableFooterTotal
+			}
 			if detailed || (next >= 12 && next%12 == 0 || i == periods) {
 				t.AppendRow(table.Row{
 					index,

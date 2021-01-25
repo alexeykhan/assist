@@ -27,7 +27,7 @@ import (
 type (
 	Validator interface {
 		HumanLifeYears(years uint8) error
-		PositiveFloat32(value float32) error
+		PositiveFloat64(value float64) error
 	}
 	validator struct{}
 )
@@ -41,7 +41,7 @@ func (v validator) HumanLifeYears(years uint8) error {
 	return nil
 }
 
-func (v validator) PositiveFloat32(value float32) error {
+func (v validator) PositiveFloat64(value float64) error {
 	if value <= 0 {
 		return fmt.Errorf("expected positive value: %.2f", value)
 	}
