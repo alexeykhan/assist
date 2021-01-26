@@ -23,7 +23,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -48,7 +47,7 @@ var calculateSavingsConfig = struct {
 		" > Сумма собственных вложений за период: %.2f\n" +
 		" > Сумма начисленных процентов за период: %.2f\n\n",
 	examples: []string{
-		"./bin/assist calculate savings --goal=10000 --years=10 --interest=6.5 --detailed=M",
+		"./bin/assist calculate savings --payment=10000 --years=10 --interest=6.5 --detailed=M",
 		"./bin/assist calculate savings -p=10000 -y=10 -i=6.5 -d=M",
 		"./bin/assist calculate savings --help",
 	},
@@ -106,59 +105,11 @@ var calculateSavings = &cobra.Command{
 			return
 		}
 
-		firstColumn := tableColumnYear
-		detailedMonthly := detailed == commandOptionDetailedMonthly
-		if detailedMonthly {
-			firstColumn = tableColumnMonth
-		}
-
-		t := getTableWriter(
-			firstColumn,
-			tableColumnInvestments,
-			tableColumnInterestIncome,
-			tableColumnTotalSavings)
-
-		var (
-			next  int
-			index interface{}
-
-			totalSavings, interestIncome, personalInvestments float64
-		)
-
-		periods := 12 * int(years)
-		periodRate := interest * 0.01 / 12
-		for i := 0; i <= periods; i++ {
-			interest := totalSavings * periodRate
-			interestIncome += interest
-			if i == periods {
-				totalSavings += interest
-				t.AppendSeparator()
-			} else {
-				totalSavings += interest + payment
-				personalInvestments += payment
-			}
-
-			next = i + 1
-			index = next
-
-			if !detailedMonthly {
-				index = next / 12
-			}
-			if i == periods {
-				index = tableFooterTotal
-			}
-			if detailedMonthly || (next >= 12 && next%12 == 0 || i == periods) {
-				t.AppendRow(table.Row{
-					index,
-					fmt.Sprintf("%.2f", personalInvestments),
-					fmt.Sprintf("%.2f", interestIncome),
-					fmt.Sprintf("%.2f", totalSavings),
-				})
-			}
-		}
+		rendered, personalInvestments, interestIncome, totalSavings := savingsTable(
+			payment, interest, years, detailed == commandOptionDetailedMonthly)
 
 		fmt.Println(taskOverview)
-		fmt.Println(t.Render())
+		fmt.Println(rendered)
 		fmt.Printf(calculateSavingsConfig.detailed, totalSavings, personalInvestments, interestIncome)
 		return
 	},
