@@ -44,9 +44,9 @@ const (
 	commandOptions       = " Параметры и опции команды:"
 	commandUsageExamples = "\n Примеры использования:\n"
 
-	tableColumnYear      = "Год"
-	tableColumnMonth     = "Месяц"
-	tableColumnExpenses  = "Расходы"
+	tableColumnYear     = "Год"
+	tableColumnMonth    = "Месяц"
+	tableColumnExpenses = "Расходы"
 
 	tableColumnInflationInitial    = "Исходная ценность"
 	tableColumnInflationEquivalent = "Эквивалент ценности"
@@ -70,13 +70,60 @@ var logo = [...]string{
 	`$$/   $$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/     $$/    `,
 }
 
-
 func yearsDuration(years uint8) string {
 	info := "лет"
 	if years != 11 && years%10 == 1 {
 		info = "года"
 	}
 	return fmt.Sprintf("%d %s", years, info)
+}
+
+func savingsTable(payment, interest float64, years uint8, detailed bool) (rendered string, personalInvestments, interestIncome, totalSavings float64) {
+	firstColumn := tableColumnYear
+	if detailed {
+		firstColumn = tableColumnMonth
+	}
+
+	t := getTableWriter(
+		firstColumn,
+		tableColumnInvestments,
+		tableColumnInterestIncome,
+		tableColumnTotalSavings)
+
+	var index interface{}
+	periods := 12 * int(years)
+	periodRate := interest * 0.01 / 12
+	for i := 0; i <= periods; i++ {
+		interest := totalSavings * periodRate
+		interestIncome += interest
+		if i == periods {
+			totalSavings += interest
+			t.AppendSeparator()
+		} else {
+			totalSavings += interest + payment
+			personalInvestments += payment
+		}
+
+		index = i + 1
+		if !detailed {
+			index = (i + 1) / 12
+		}
+
+		if i == periods {
+			index = tableFooterTotal
+		}
+
+		if detailed || (i+1 >= 12 && (i+1)%12 == 0 || i == periods) {
+			t.AppendRow(table.Row{
+				index,
+				fmt.Sprintf("%.2f", personalInvestments),
+				fmt.Sprintf("%.2f", interestIncome),
+				fmt.Sprintf("%.2f", totalSavings),
+			})
+		}
+	}
+
+	return t.Render(), personalInvestments, interestIncome, totalSavings
 }
 
 func commandOverview(title, about string, examples []string) string {
