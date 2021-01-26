@@ -91,11 +91,7 @@ var calculateInflation = &cobra.Command{
 		current := getFloat64(cmd, calculateInflationFlags.Current.Name)
 		detailed := getBool(cmd, calculateInflationFlags.Detailed.Name)
 
-		overview := fmt.Sprintf(
-			calculateInflationConfig.overview,
-			core.View().YearsDuration(years),
-			inflation, current)
-
+		overview := fmt.Sprintf(calculateInflationConfig.overview, yearsDuration(years), inflation, current)
 		taskOverview := getTaskOverview(calculateInflationConfig.title, overview)
 
 		if !detailed {

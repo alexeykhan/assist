@@ -91,10 +91,7 @@ var decomposeRetirement = &cobra.Command{
 			return err
 		}
 
-		overview := fmt.Sprintf(
-			calculateSavingsConfig.overview,
-			interest, core.View().YearsDuration(years), expenses)
-
+		overview := fmt.Sprintf(calculateSavingsConfig.overview, interest, yearsDuration(years), expenses)
 		taskOverview := getTaskOverview(decomposeRetirementConfig.title, overview)
 
 		var retirement float64

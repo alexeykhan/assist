@@ -18,25 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package assist
+package check
 
 import (
 	"fmt"
 )
 
 type (
-	View interface {
-		YearsDuration(years uint8) string
+	// Checker осуществляет проверку входных данных.
+	Checker interface {
+		HumanLifeYears(years uint8) error
+		PositiveFloat64(value float64) error
 	}
-	view struct{}
+	check struct{}
 )
 
-var _ View = view{}
+// New создает новый экземпляр Checker.
+func New() Checker {
+	return check{}
+}
 
-func (v view) YearsDuration(years uint8) string {
-	info := "лет"
-	if years != 11 && years%10 == 1 {
-		info = "года"
+// HumanLifeYears проверяет входное число на соразмерность длительности человеческой жизни.
+func (c check) HumanLifeYears(years uint8) error {
+	if years == 0 || years > 100 {
+		return fmt.Errorf("meaningless number of years: got %d, expected from 1 to 100", years)
 	}
-	return fmt.Sprintf("%d %s", years, info)
+	return nil
+}
+
+// PositiveFloat64 проверяет, что входное число является неотрицательным float64.
+func (c check) PositiveFloat64(value float64) error {
+	if value <= 0 {
+		return fmt.Errorf("expected positive value: %.2f", value)
+	}
+	return nil
 }
