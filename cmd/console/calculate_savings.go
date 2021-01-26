@@ -92,11 +92,7 @@ var calculateSavings = &cobra.Command{
 			return err
 		}
 
-		overview := fmt.Sprintf(
-			calculateSavingsConfig.overview,
-			core.View().YearsDuration(years),
-			payment, interest)
-
+		overview := fmt.Sprintf(calculateSavingsConfig.overview, yearsDuration(years), payment, interest)
 		taskOverview := getTaskOverview(calculateSavingsConfig.title, overview)
 
 		if detailed == commandOptionEmpty {

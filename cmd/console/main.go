@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/alexeykhan/assist/internal/assist"
+	"github.com/alexeykhan/assist/pkg/assist"
 )
 
 var (

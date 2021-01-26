@@ -23,40 +23,42 @@ package assist
 import (
 	"fmt"
 	"math"
+
+	"github.com/alexeykhan/assist/pkg/check"
 )
 
 type (
+	// Assist описывает функционал для проведения финансовых расчетов.
 	Assist interface {
 		DecomposeSavings(goal, interest float64, years uint8) (float64, error)
 		DecomposeRetirement(expenses, interest float64, years uint8) (float64, error)
 		CalculateSavings(payment, interest float64, years uint8) (float64, error)
 		CalculateInflation(current, inflation float64, years uint8) (float64, error)
-		Validator() Validator
-		View() View
 	}
 	assist struct {
-		validator Validator
-		view      View
+		check check.Checker
 	}
 )
 
 var _ Assist = assist{}
 
+// New создает новый экземпрляр Assist.
 func New() Assist {
 	return assist{
-		view:      view{},
-		validator: validator{},
+		check: check.New(),
 	}
 }
 
+// DecomposeSavings рассчитывает ежемесячный платеж, необходимый для накопления суммы goal,
+// при условии поддержания средней доходности портфеля не ниже interest% на протяжении years лет.
 func (a assist) DecomposeSavings(goal, interest float64, years uint8) (payment float64, err error) {
-	if err = a.validator.HumanLifeYears(years); err != nil {
+	if err = a.check.HumanLifeYears(years); err != nil {
 		return payment, err
 	}
-	if err = a.validator.PositiveFloat64(interest); err != nil {
+	if err = a.check.PositiveFloat64(interest); err != nil {
 		return payment, fmt.Errorf("invalid interest rate: %w", err)
 	}
-	if err = a.validator.PositiveFloat64(goal); err != nil {
+	if err = a.check.PositiveFloat64(goal); err != nil {
 		return payment, fmt.Errorf("invalid financial goal: %w", err)
 	}
 
@@ -68,39 +70,41 @@ func (a assist) DecomposeSavings(goal, interest float64, years uint8) (payment f
 		finalCoefficient *= coefficient
 	}
 
-	// Формула сложных процентов, начисляемых несколько раз в течение года,
-	// выходит из суммы геометрической прогрессии, в которой первый член
-	// равен payment*(1+periodRate), а знаменатель прогрессии - (1+periodRate).
 	payment = (goal * periodRate) / (coefficient*finalCoefficient - coefficient)
-
 	return
 }
 
+// DecomposeRetirement рассчитывает минимальную суммы накоплений, которая позволит выйти на
+// пенсию и на протяжении years лет ежемесячно тратить сумму expenses, при условии, что накопления
+// будут приносить доходность не менее interest% годовых.
 func (a assist) DecomposeRetirement(expenses, interest float64, years uint8) (retirement float64, err error) {
-	if err = a.validator.HumanLifeYears(years); err != nil {
+	if err = a.check.HumanLifeYears(years); err != nil {
 		return retirement, err
 	}
-	if err = a.validator.PositiveFloat64(interest); err != nil {
+	if err = a.check.PositiveFloat64(interest); err != nil {
 		return retirement, fmt.Errorf("invalid interest rate: %w", err)
 	}
-	if err = a.validator.PositiveFloat64(expenses); err != nil {
+	if err = a.check.PositiveFloat64(expenses); err != nil {
 		return retirement, fmt.Errorf("invalid expenses: %w", err)
 	}
 
 	R := interest * 0.01 / 12
-	RPlusOnePow := math.Pow(R + 1, 12 * float64(years) - 1)
-	retirement = expenses * (RPlusOnePow*(R+1) - 1)/(RPlusOnePow*R)
+	RPlusOnePow := math.Pow(R+1, 12*float64(years)-1)
+	retirement = expenses * (RPlusOnePow*(R+1) - 1) / (RPlusOnePow * R)
 	return
 }
 
+// CalculateSavings рассчитывает будущие накопления при условии ежемесячных инвестиций на сумму
+// не менее payment, средней доходностью портфеля interest% и ежемесячной капитализацией процентов
+// на протяжении years лет.
 func (a assist) CalculateSavings(payment, interest float64, years uint8) (savings float64, err error) {
-	if err = a.validator.HumanLifeYears(years); err != nil {
+	if err = a.check.HumanLifeYears(years); err != nil {
 		return savings, err
 	}
-	if err = a.validator.PositiveFloat64(interest); err != nil {
+	if err = a.check.PositiveFloat64(interest); err != nil {
 		return savings, fmt.Errorf("invalid interest rate: %w", err)
 	}
-	if err = a.validator.PositiveFloat64(payment); err != nil {
+	if err = a.check.PositiveFloat64(payment); err != nil {
 		return savings, fmt.Errorf("invalid payment: %w", err)
 	}
 
@@ -112,33 +116,24 @@ func (a assist) CalculateSavings(payment, interest float64, years uint8) (saving
 		finalCoefficient *= coefficient
 	}
 
-	// Формула сложных процентов, начисляемых несколько раз в течение года,
-	// выходит из суммы геометрической прогрессии, в которой первый член
-	// равен payment*(1+periodRate), а знаменатель прогрессии - (1+periodRate).
 	savings = payment * (coefficient*finalCoefficient - coefficient) / periodRate
-
 	return
 }
 
+// CalculateInflation рассчитывает изменение покупательской способности относительно заданной
+// суммы current по прошествии years лет и средним показателем инфляции inflation% в год,
+// возвращая эквивалент исходной суммы current по прошествии срока years.
 func (a assist) CalculateInflation(current, inflation float64, years uint8) (inflated float64, err error) {
-	if err = a.validator.HumanLifeYears(years); err != nil {
+	if err = a.check.HumanLifeYears(years); err != nil {
 		return inflated, err
 	}
-	if err = a.validator.PositiveFloat64(current); err != nil {
+	if err = a.check.PositiveFloat64(current); err != nil {
 		return inflated, fmt.Errorf("invalid current value: %w", err)
 	}
-	if err = a.validator.PositiveFloat64(inflation); err != nil {
+	if err = a.check.PositiveFloat64(inflation); err != nil {
 		return inflated, fmt.Errorf("invalid inflation: %w", err)
 	}
 
-	inflated = current * math.Pow(1 + inflation * 0.01, float64(years))
+	inflated = current * math.Pow(1+inflation*0.01, float64(years))
 	return
-}
-
-func (a assist) Validator() Validator {
-	return a.validator
-}
-
-func (a assist) View() View {
-	return a.view
 }

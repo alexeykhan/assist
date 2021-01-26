@@ -70,6 +70,15 @@ var logo = [...]string{
 	`$$/   $$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/     $$/    `,
 }
 
+
+func yearsDuration(years uint8) string {
+	info := "лет"
+	if years != 11 && years%10 == 1 {
+		info = "года"
+	}
+	return fmt.Sprintf("%d %s", years, info)
+}
+
 func commandOverview(title, about string, examples []string) string {
 	boldWhiteText := text.Colors{text.Bold, text.FgHiWhite}
 	normalWhiteText := text.Colors{text.FgHiWhite}
