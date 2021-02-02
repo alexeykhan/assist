@@ -18,6 +18,9 @@ $$/   $$/  $$$$$$/   $$$$$$/  $$$$$$/  $$$$$$/     $$/
     <a href="https://pkg.go.dev/github.com/alexeykhan/assist">
         <img src="https://img.shields.io/badge/pkg.go.dev-reference-00ADD8?logo=go&logoColor=white" alt="GoDoc Reference">
     </a>
+    <a href="https://goreportcard.com/report/github.com/alexeykhan/assist">
+        <img src="https://goreportcard.com/badge/github.com/alexeykhan/assist" alt="Go Report Card">
+    </a>
     <a href="https://pkg.go.dev/github.com/alexeykhan/assist">
         <img src="https://img.shields.io/badge/version-0.1.0-00ADD8&logoColor=white" alt="Version">
     </a>
